@@ -83,3 +83,35 @@ class UserAccountRepository(BaseRepository[UserAccount]):
             .where(UserAccount.is_deleted == 0)
         )
         return session.exec(stmt).first()
+
+    def init_account(
+            self,
+            session: Session,
+            *,
+            user: UserAccount,
+            password: str,
+            name: str,
+            id_card_no: str,
+            school_id: int,
+            major: str,
+            student_no: str,
+            email: Optional[str] = None,
+            avatar_url: Optional[str] = None,
+    ) -> UserAccount:
+        """
+        账号初始化：设置密码 + 补全资料
+        注意：这里不做权限判断（是否允许初始化），权限判断放在 API 层
+        """
+        user.password_hash = self.hash_password(password)
+        user.name = name
+        user.id_card_no = id_card_no
+        user.school_id = school_id
+        user.major = major
+        user.student_no = student_no
+        user.email = email
+        user.avatar_url = avatar_url
+
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+        return user

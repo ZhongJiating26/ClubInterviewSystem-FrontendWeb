@@ -1,14 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session
 from pydantic import BaseModel, Field
-from fastapi import Depends
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlmodel import Session
 
 from app.api.deps import get_current_user
 from app.models.user_account import UserAccount
 from app.db.session import get_session
 from app.repositories.user_account import UserAccountRepository
 from app.core.security import create_access_token
-
+from app.schemas.auth import InitAccountRequest, InitAccountResponse
 
 
 
@@ -119,3 +118,39 @@ def me(current_user: UserAccount = Depends(get_current_user)):
         "name": current_user.name,
         "status": current_user.status,
     }
+
+@router.post("/init", response_model=InitAccountResponse)
+def init_account(
+    data: InitAccountRequest,
+    session: Session = Depends(get_session),
+    current_user: UserAccount = Depends(get_current_user),
+):
+    # 1) 禁用用户不能操作
+    if current_user.status != 1:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="用户已被禁用",
+        )
+
+    # 2) 已初始化不能重复初始化
+    if current_user.password_hash is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="账号已初始化，无需重复初始化",
+        )
+
+    # 3) 执行初始化（写入密码 + 资料）
+    user_repo.init_account(
+        session,
+        user=current_user,
+        password=data.password,
+        name=data.name,
+        id_card_no=data.id_card_no,
+        school_id=data.school_id,
+        major=data.major,
+        student_no=data.student_no,
+        email=data.email,
+        avatar_url=data.avatar_url,
+    )
+
+    return InitAccountResponse()

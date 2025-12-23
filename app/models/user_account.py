@@ -19,9 +19,9 @@ class UserAccount(BaseModel, table=True):
         description="手机号"
     )
 
-    password_hash: str = Field(
+    password_hash: Optional[str] = Field(
+        default=None,
         max_length=255,
-        nullable=False,
         description="密码哈希"
     )
 
