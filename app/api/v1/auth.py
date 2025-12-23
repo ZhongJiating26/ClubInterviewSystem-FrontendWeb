@@ -87,6 +87,13 @@ def login(
             detail="用户已被禁用",
         )
 
+    # ⭐ 2.5️⃣ 账号是否初始化（新增，关键）
+    if user.password_hash is None:
+        raise HTTPException(
+            status_code=403,
+            detail="账号尚未初始化，请先完善账号信息",
+        )
+
     # 3️⃣ 校验密码
     if not user_repo.verify_password(data.password, user.password_hash):
         raise HTTPException(
@@ -94,7 +101,7 @@ def login(
             detail="手机号或密码错误",
         )
 
-    # 4️⃣ 签发 JWT（关键：带 token_version）
+    # 4️⃣ 签发 JWT（带 token_version）
     token_payload = {
         "user_id": user.id,
         "token_version": user.token_version,
@@ -102,7 +109,6 @@ def login(
 
     access_token = create_access_token(subject=token_payload)
     return LoginResponse(access_token=access_token)
-
 
 
 @router.get("/me")
