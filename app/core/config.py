@@ -4,7 +4,7 @@ from pydantic import Field
 
 class Settings(BaseSettings):
     # ===== 基础 =====
-    app_name: str = Field(default="FastAPI App")
+    app_name: str = Field(default="Club Interview System")
     app_env: str = Field(default="dev")
     debug: bool = Field(default=False)
 

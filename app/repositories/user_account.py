@@ -1,0 +1,72 @@
+from typing import Optional
+
+from sqlmodel import Session, select
+from passlib.context import CryptContext
+
+from app.models.user_account import UserAccount
+from app.repositories.base import BaseRepository
+
+
+# 密码哈希工具（bcrypt）
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto",
+)
+
+
+class UserAccountRepository(BaseRepository[UserAccount]):
+    """
+    用户账号仓储
+    """
+
+    def __init__(self):
+        super().__init__(UserAccount)
+
+    # ========= 密码相关 =========
+
+    def hash_password(self, raw_password: str) -> str:
+        return pwd_context.hash(raw_password)
+
+    def verify_password(self, raw_password: str, password_hash: str) -> bool:
+        return pwd_context.verify(raw_password, password_hash)
+
+    # ========= 查询 =========
+
+    def get_by_phone(self, session: Session, phone: str) -> Optional[UserAccount]:
+        """
+        根据手机号查询未删除用户
+        """
+        stmt = (
+            select(UserAccount)
+            .where(UserAccount.phone == phone)
+            .where(UserAccount.is_deleted == 0)
+        )
+        return session.exec(stmt).first()
+
+    # ========= 创建用户（注册核心） =========
+
+    def create_user(
+        self,
+        session: Session,
+        *,
+        phone: str,
+        password: str,
+        name: Optional[str] = None,
+        school_id: Optional[int] = None,
+    ) -> UserAccount:
+        """
+        创建新用户（自动 hash 密码）
+        """
+        password_hash = self.hash_password(password)
+
+        user = UserAccount(
+            phone=phone,
+            password_hash=password_hash,
+            name=name,
+            school_id=school_id,
+        )
+
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+        return user
