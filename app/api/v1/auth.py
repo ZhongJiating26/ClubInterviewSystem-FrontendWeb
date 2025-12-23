@@ -5,6 +5,8 @@ from pydantic import BaseModel, Field
 from app.db.session import get_session
 from app.repositories.user_account import UserAccountRepository
 from app.core.security import create_access_token
+from app.api.deps import get_current_user
+from app.models.user_account import UserAccount
 
 
 
@@ -100,3 +102,11 @@ def login(
     access_token = create_access_token(subject=token_payload)
 
     return LoginResponse(access_token=access_token)
+
+@router.get("/me")
+def me():
+    return {
+        "id": 1,
+        "phone": "13800000001",
+        "name": "测试用户"
+    }
