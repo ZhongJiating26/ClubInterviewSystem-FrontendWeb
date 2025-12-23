@@ -1,0 +1,6 @@
+账户模块
+写 get_current_user 依赖（JWT 解析 + token_version 校验）
+实现“修改密码 → token 全部失效”
+开始角色 / 权限（role / user_role + RBAC）
+
+

@@ -4,10 +4,9 @@ from pydantic import BaseModel, Field
 
 from app.db.session import get_session
 from app.repositories.user_account import UserAccountRepository
+from app.core.security import create_access_token
 
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
-user_repo = UserAccountRepository()
 
 
 class RegisterRequest(BaseModel):
@@ -16,11 +15,23 @@ class RegisterRequest(BaseModel):
     name: str | None = None
     school_id: int | None = None
 
+class LoginRequest(BaseModel):
+    phone: str
+    password: str
+
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
 
 class RegisterResponse(BaseModel):
     id: int
     phone: str
     name: str | None
+
+
+router = APIRouter(prefix="/auth", tags=["Auth"])
+user_repo = UserAccountRepository()
 
 
 @router.post("/register", response_model=RegisterResponse)
@@ -51,3 +62,41 @@ def register(
         phone=user.phone,
         name=user.name,
     )
+
+
+@router.post("/login", response_model=LoginResponse)
+def login(
+    data: LoginRequest,
+    session: Session = Depends(get_session),
+):
+    # 1️⃣ 查用户
+    user = user_repo.get_by_phone(session, data.phone)
+    if not user:
+        raise HTTPException(
+            status_code=400,
+            detail="手机号或密码错误",
+        )
+
+    # 2️⃣ 校验状态
+    if user.status != 1:
+        raise HTTPException(
+            status_code=403,
+            detail="用户已被禁用",
+        )
+
+    # 3️⃣ 校验密码
+    if not user_repo.verify_password(data.password, user.password_hash):
+        raise HTTPException(
+            status_code=400,
+            detail="手机号或密码错误",
+        )
+
+    # 4️⃣ 签发 JWT（关键：带 token_version）
+    token_payload = {
+        "user_id": user.id,
+        "token_version": user.token_version,
+    }
+
+    access_token = create_access_token(subject=token_payload)
+
+    return LoginResponse(access_token=access_token)

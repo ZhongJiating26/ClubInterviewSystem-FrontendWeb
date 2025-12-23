@@ -16,8 +16,9 @@ class Settings(BaseSettings):
     db_name: str
 
     # ===== JWT =====
-    jwt_secret: str
-    jwt_algorithm: str = "HS256"
+    jwt_secret_key: str = Field("CHANGE_ME", description="JWT密钥")
+    jwt_algorithm: str = Field("HS256")
+    jwt_expire_minutes: int = Field(60 * 24)  # 1天
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 7
 
