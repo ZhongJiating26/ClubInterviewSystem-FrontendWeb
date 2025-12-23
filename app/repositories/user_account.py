@@ -70,3 +70,16 @@ class UserAccountRepository(BaseRepository[UserAccount]):
         session.commit()
         session.refresh(user)
         return user
+
+    #查询ID
+
+    def get_by_id(self, session: Session, user_id: int) -> Optional[UserAccount]:
+        """
+        根据 ID 查询未删除用户
+        """
+        stmt = (
+            select(UserAccount)
+            .where(UserAccount.id == user_id)
+            .where(UserAccount.is_deleted == 0)
+        )
+        return session.exec(stmt).first()

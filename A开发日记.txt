@@ -1,0 +1,7 @@
+正确签发 JWT
+正确解码 JWT
+正确校验 token_version
+正确校验用户状态
+正确接入 FastAPI
+Swagger 行为清晰、不误导
+

@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from pydantic import BaseModel, Field
+from fastapi import Depends
 
+from app.api.deps import get_current_user
+from app.models.user_account import UserAccount
 from app.db.session import get_session
 from app.repositories.user_account import UserAccountRepository
 from app.core.security import create_access_token
@@ -98,5 +101,15 @@ def login(
     }
 
     access_token = create_access_token(subject=token_payload)
-
     return LoginResponse(access_token=access_token)
+
+
+
+@router.get("/me")
+def me(current_user: UserAccount = Depends(get_current_user)):
+    return {
+        "id": current_user.id,
+        "phone": current_user.phone,
+        "name": current_user.name,
+        "status": current_user.status,
+    }
