@@ -5,11 +5,24 @@
 这是一个基于 FastAPI + SQLModel + MySQL 的校园社团招新与面试管理系统后端。项目采用现代化的 Python Web 开发架构，提供用户注册、登录认证、社团管理等核心功能。
 
 ### 🎯 核心功能
-- ✅ **用户注册与登录** - 支持手机号注册、密码登录，返回 JWT Token
-- ✅ **安全认证** - 使用 bcrypt 密码哈希 + JWT 令牌认证
-- ✅ **软删除机制** - 所有数据表支持软删除，数据可恢复
-- ✅ **数据库迁移** - 使用 Alembic 进行版本化数据库管理
-- ✅ **API 文档** - 内置 Swagger UI，可直接用于前端联调
+
+#### ✅ 认证模块
+- **用户注册** - 手机号 + 密码注册，自动哈希密码
+- **用户登录** - 手机号 + 密码登录，返回 JWT Access Token
+- **账号初始化** - 支持未初始化账号（仅手机号）→ 完整资料（密码 + 实名信息）
+- **用户信息** - 获取当前登录用户信息 (`/auth/me`)
+
+#### ✅ 安全特性
+- **密码安全** - 使用 bcrypt 算法自动加盐哈希
+- **JWT 认证** - HS256 算法，Payload 包含 `user_id` + `token_version`
+- **令牌吊销** - 通过 `token_version` 实现强制登出/令牌失效
+- **状态校验** - 用户状态 (`status`) 和软删除 (`is_deleted`) 双重校验
+
+#### ✅ 数据架构
+- **软删除机制** - 所有数据表支持软删除，数据可恢复
+- **数据库迁移** - 使用 Alembic 进行版本化数据库管理
+- **仓储模式** - Repository 模式封装数据访问逻辑
+- **Pydantic 验证** - 所有 API 参数和响应使用 Pydantic 模型验证
 
 ## 🏗️ 技术栈
 
@@ -28,27 +41,30 @@
 ```
 ClubInterviewSystem-Backend/
 ├── app/
-│   ├── api/v1/
-│   │   └── auth.py              # 认证相关 API (注册/登录)
+│   ├── api/
+│   │   ├── deps.py              # FastAPI 依赖注入 (JWT 认证)
+│   │   └── v1/
+│   │       └── auth.py          # 认证 API (注册/登录/初始化/用户信息)
 │   ├── core/
-│   │   ├── config.py            # 配置管理 (环境变量)
-│   │   └── security.py          # 安全工具 (JWT)
+│   │   ├── config.py            # 配置管理 (Pydantic Settings)
+│   │   └── security.py          # JWT 工具 (签发/解码)
 │   ├── db/
-│   │   └── session.py           # 数据库连接与 Session 管理
+│   │   └── session.py           # 数据库引擎 & Session 工厂
 │   ├── models/
-│   │   ├── base.py              # 基础模型 (软删除/时间戳)
+│   │   ├── base.py              # 基础模型 (软删除/时间戳/恢复方法)
 │   │   ├── school.py            # 学校表模型
 │   │   └── user_account.py      # 用户账号表模型
 │   ├── repositories/
-│   │   ├── base.py              # 通用仓储基类
-│   │   └── user_account.py      # 用户账号仓储
-│   └── main.py                  # FastAPI 应用入口
+│   │   ├── base.py              # 通用仓储基类 (CRUD + 软删除)
+│   │   └── user_account.py      # 用户仓储 (密码哈希/初始化)
+│   └── main.py                  # FastAPI 应用入口 & 路由注册
 ├── alembic/
 │   ├── versions/                # 数据库迁移历史
-│   │   ├── c0d912eb30e0_init.py
 │   │   ├── 7906d6cae979_create_school_table.py
 │   │   └── 9e13212a1495_create_user_account_table.py
-│   └── env.py                   # Alembic 配置
+│   └── env.py                   # Alembic 配置 (SQLModel 集成)
+├── tests/
+│   └── test_auth_init.py        # 账号初始化流程测试
 ├── .env                         # 环境变量配置
 └── tmp_test_user_repo.py        # 用户仓储测试脚本
 ```
@@ -58,21 +74,32 @@ ClubInterviewSystem-Backend/
 ### 表结构
 
 #### 1. `user_account` 用户账号表
+
 ```sql
 -- 核心字段
 id, phone, password_hash, token_version, status
--- 个人信息
+
+-- 个人信息 (可空，初始化时填写)
 name, id_card_no, school_id, major, student_no, avatar_url, email
+
 -- 软删除 & 时间戳
 is_deleted, deleted_at, created_at, updated_at
+
 -- 认证相关
 is_verified_campus, last_login_at
 ```
 
-**特点：**
-- ✅ 手机号唯一约束 (排除软删除数据)
-- ✅ 密码使用 bcrypt 哈希存储
-- ✅ token_version 用于强制登出/令牌吊销
+**关键设计：**
+- ✅ **手机号唯一约束** - `(phone, is_deleted)` 组合唯一，支持软删除后重新注册
+- ✅ **密码可为空** - `password_hash` 允许 NULL，支持"未初始化账号"模式
+- ✅ **令牌版本控制** - `token_version` 用于强制登出/令牌吊销
+- ✅ **状态双重校验** - `status` (业务状态) + `is_deleted` (软删除)
+
+**账号生命周期：**
+1. **注册** → 创建账号，`password_hash = NULL`，`status = 1`
+2. **初始化** → 填写密码 + 实名信息，`password_hash` 设值
+3. **登录** → 仅当 `password_hash != NULL` 且 `status = 1` 时允许
+4. **软删除** → `is_deleted = 1`，数据保留但不可见
 
 #### 2. `school` 学校表
 ```sql
@@ -90,6 +117,75 @@ is_deleted, deleted_at, created_at, updated_at
 - `touch()`: 更新时间戳方法
 - `soft_delete()`: 软删除方法
 - `restore()`: 恢复方法
+
+## 🔄 核心业务流程
+
+### 账号初始化流程（特色功能）
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ 1. 用户注册 (POST /auth/register)                           │
+│    ├─ 输入: phone, password, name?, school_id?              │
+│    ├─ 行为: 创建账号，password_hash = NULL                  │
+│    └─ 返回: {id, phone, name}                               │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 2. 尝试登录 (POST /auth/login)                              │
+│    ├─ 检查: password_hash == NULL?                          │
+│    └─ 返回: 403 "账号尚未初始化，请先完善账号信息"           │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 3. 生成临时 Token (内部)                                    │
+│    ├─ 使用: create_access_token(user_id, token_version)     │
+│    └─ 目的: 让未初始化用户也能访问初始化接口                │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 4. 账号初始化 (POST /auth/init)                             │
+│    ├─ 需求: Bearer Token + 完整资料                         │
+│    ├─ 校验: 已登录 + 未初始化 + 状态正常                    │
+│    ├─ 行为: 写入 password_hash + 实名信息                   │
+│    └─ 返回: {message: "账号初始化成功"}                     │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 5. 正常登录 (POST /auth/login)                              │
+│    ├─ 检查: password_hash != NULL + 密码正确                │
+│    ├─ 行为: 签发正式 Token                                   │
+│    └─ 返回: {access_token, token_type}                      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### JWT 认证流程
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ 客户端请求 API                                              │
+│ Header: Authorization: Bearer <token>                       │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 1. decode_access_token()                                    │
+│    ├─ 验证签名 (HS256)                                      │
+│    ├─ 验证过期时间 (exp)                                    │
+│    └─ 提取 payload: {user_id, token_version}                │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 2. get_current_user_by_token()                              │
+│    ├─ 查询数据库: user = get_by_id(user_id)                 │
+│    ├─ 校验: is_deleted == 0                                 │
+│    ├─ 校验: status == 1                                     │
+│    └─ 校验: token_version == user.token_version             │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 3. 通过验证，执行业务逻辑                                   │
+│    返回: UserAccount 对象                                   │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ## 🚀 快速开始
 
@@ -179,12 +275,15 @@ Content-Type: application/json
   "school_id": 1
 }
 
-# 响应
+# 响应 (200)
 {
   "id": 1,
   "phone": "13800000001",
   "name": "张三"
 }
+
+# 错误 (400) - 手机号已注册
+{"detail": "手机号已注册"}
 ```
 
 #### 2. 用户登录
@@ -197,10 +296,63 @@ Content-Type: application/json
   "password": "123456"
 }
 
-# 响应
+# 响应 (200)
 {
   "access_token": "eyJhbGciOiJIUzI1NiIsInR...",
   "token_type": "bearer"
+}
+
+# 错误 (400) - 账号或密码错误
+{"detail": "手机号或密码错误"}
+
+# 错误 (403) - 账号未初始化
+{"detail": "账号尚未初始化，请先完善账号信息"}
+
+# 错误 (403) - 用户被禁用
+{"detail": "用户已被禁用"}
+```
+
+#### 3. 账号初始化
+```http
+POST /auth/init
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+  "password": "123456",
+  "name": "李四",
+  "id_card_no": "110101199001011234",
+  "school_id": 1,
+  "major": "计算机科学与技术",
+  "student_no": "20230001",
+  "email": "lisi@example.com",
+  "avatar_url": "https://example.com/avatar.jpg"
+}
+
+# 响应 (200)
+{"message": "账号初始化成功"}
+
+# 错误 (401) - 未登录
+{"detail": "Not authenticated"}
+
+# 错误 (403) - 用户被禁用
+{"detail": "用户已被禁用"}
+
+# 错误 (409) - 已初始化
+{"detail": "账号已初始化，无需重复初始化"}
+```
+
+#### 4. 获取用户信息
+```http
+GET /auth/me
+Authorization: Bearer <access_token>
+
+# 响应 (200)
+{
+  "id": 1,
+  "phone": "13800000001",
+  "name": "李四",
+  "status": 1
 }
 ```
 
@@ -219,20 +371,41 @@ GET /health
 ## 🔐 安全特性
 
 ### 1. 密码安全
-- 使用 **bcrypt** 算法进行密码哈希
-- 自动加盐，防止彩虹表攻击
-- 密码验证使用 `passlib` 库
+- **算法**：bcrypt，自动加盐，防止彩虹表攻击
+- **库**：passlib.context.CryptContext
+- **存储**：`password_hash` 字段，最大长度 255 字符
+- **验证**：`verify_password(raw, hash)` 对比哈希值
 
-### 2. JWT 认证
-- 算法：HS256
-- Payload 包含：`user_id`, `token_version`
-- 支持令牌过期时间配置
-- 通过 `token_version` 实现强制登出
+### 2. JWT 认证流程
+```python
+# 签发 (登录时)
+payload = {
+    "user_id": user.id,
+    "token_version": user.token_version,
+    "exp": datetime.utcnow() + timedelta(minutes=30)
+}
+token = jwt.encode(payload, secret, algorithm="HS256")
 
-### 3. 数据安全
-- 所有 API 参数使用 Pydantic 验证
-- 数据库唯一约束防止重复数据
-- 软删除防止数据丢失
+# 验证 (每次请求)
+1. 解码 token，校验签名和过期时间
+2. 查询 user_id，检查 is_deleted=0, status=1
+3. 对比 token_version，防止令牌吊销后继续使用
+```
+
+### 3. 令牌吊销机制
+- **场景**：用户修改密码、主动登出、账号被禁用
+- **实现**：`user.token_version += 1`
+- **效果**：所有旧 token 自动失效（版本不匹配）
+
+### 4. 账号初始化安全
+- **未初始化账号**：`password_hash = NULL`，无法登录
+- **初始化要求**：必须已登录（有有效 token）
+- **防重复**：已初始化账号无法再次初始化 (409 Conflict)
+
+### 5. 数据完整性
+- **唯一约束**：`(phone, is_deleted)` 防止重复注册
+- **软删除**：数据物理保留，逻辑隔离
+- **Pydantic 验证**：所有输入/输出字段严格校验
 
 ## 🛠️ 开发指南
 
@@ -271,6 +444,22 @@ user = repo.get_by_phone(session, phone)
 
 ## 🧪 测试
 
+### 单元测试 (pytest)
+
+使用 `tests/test_auth_init.py` 测试账号初始化完整流程：
+
+```bash
+# 运行测试
+pytest tests/test_auth_init.py -v
+
+# 测试覆盖：
+# ✅ 未登录直接 init → 401
+# ✅ 未初始化用户登录 → 403
+# ✅ 使用临时 token 初始化 → 200
+# ✅ 重复初始化 → 409
+# ✅ 初始化后正常登录 → 200
+```
+
 ### 手动测试脚本
 
 使用 `tmp_test_user_repo.py` 测试用户仓储：
@@ -285,6 +474,13 @@ python tmp_test_user_repo.py
 1. 访问 `http://localhost:8000/docs`
 2. 点击 "Authorize" 输入 Token
 3. 直接在页面上测试 API
+
+**测试建议流程：**
+1. 先调用 `/auth/register` 注册账号
+2. 尝试 `/auth/login` → 应返回 403 (未初始化)
+3. 从注册响应获取 token，调用 `/auth/init` 完成初始化
+4. 再次 `/auth/login` → 应成功返回 token
+5. 使用新 token 访问 `/auth/me` 验证
 
 ## 📝 开发规范
 
@@ -311,6 +507,22 @@ chore: 构建/工具变动
 
 ## 🔧 常见问题
 
+### Q: 登录时返回 "账号尚未初始化" 怎么办？
+**A:** 这是项目的特色功能。注册后账号处于"未初始化"状态：
+1. 注册时会返回用户信息，但**不会**返回 token
+2. 需要先通过其他方式（如管理员分配）获得临时 token
+3. 使用 token 调用 `/auth/init` 完成初始化
+4. 初始化后才能正常登录
+
+**开发环境测试：**
+```python
+# 在代码中手动创建临时 token
+from app.core.security import create_access_token
+token = create_access_token(
+    subject={"user_id": user.id, "token_version": user.token_version}
+)
+```
+
 ### Q: 如何重置数据库？
 ```bash
 # 回滚所有迁移
@@ -334,6 +546,27 @@ jwt_expire_minutes: int = Field(60 * 24)  # 1天
 access_token_expire_minutes: int = 30
 ```
 
+### Q: 为什么注册接口不直接返回 token？
+**A:** 这是业务设计。注册时可能：
+- 只收集手机号，后续需要完善资料
+- 需要管理员审核
+- 需要发送验证码验证
+
+通过"未初始化"状态，可以灵活控制账号生命周期。
+
+### Q: 如何实现令牌吊销（强制登出）？
+**A:** 在需要强制登出的地方（修改密码、账号禁用）：
+```python
+user.token_version += 1
+session.commit()
+```
+所有旧 token 因版本不匹配自动失效。
+
+### Q: 账号初始化接口需要认证，未初始化用户怎么拿到 token？
+**A:** 两种方案：
+1. **开发环境**：手动创建临时 token（见上文）
+2. **生产环境**：通过短信验证码或其他认证方式，生成一次性初始化 token
+
 ## 📚 依赖说明
 
 ### 核心依赖
@@ -348,16 +581,25 @@ access_token_expire_minutes: int = 30
 
 ## 🎯 下一步开发计划
 
-- [ ] 添加社团管理模块
-- [ ] 添加招新流程管理
-- [ ] 添加面试安排功能
-- [ ] 添加权限控制 (RBAC)
-- [ ] 添加文件上传 (头像/资料)
-- [ ] 添加短信验证码注册
-- [ ] 添加 Redis 缓存
-- [ ] 添加单元测试
-- [ ] 添加 API 限流
-- [ ] 添加日志系统
+### ✅ 已完成功能
+- [x] 用户注册/登录/初始化基础流程
+- [x] JWT 认证与令牌吊销机制
+- [x] 软删除与数据恢复
+- [x] 数据库迁移 (Alembic)
+- [x] 账号初始化流程测试
+
+### 📋 待开发功能
+- [ ] **社团管理模块** - 社团创建、成员管理、招新设置
+- [ ] **招新流程管理** - 报名表单、审核流程、状态跟踪
+- [ ] **面试安排功能** - 面试时间表、面试官分配、结果录入
+- [ ] **权限控制 (RBAC)** - 角色管理 (管理员/社长/成员/申请人)
+- [ ] **文件上传** - 头像、身份证、学生证上传 (OSS/本地)
+- [ ] **短信验证码** - 手机号验证、登录/注册验证码
+- [ ] **API 限流** - 防止刷接口、DDoS 防护
+- [ ] **日志系统** - 操作日志、审计日志
+- [ ] **单元测试** - 覆盖率提升到 80%+
+- [ ] **缓存优化** - Redis 缓存热点数据
+- [ ] **WebSocket** - 实时通知、面试状态推送
 
 ## 📄 许可证
 
