@@ -7,8 +7,7 @@ from app.models.user_account import UserAccount
 from app.db.session import get_session
 from app.repositories.user_account import UserAccountRepository
 from app.core.security import create_access_token
-from app.schemas.auth import InitAccountRequest, InitAccountResponse
-
+from app.schemas.auth import InitAccountRequest, InitAccountResponse, AuthMeResponse
 
 
 class RegisterRequest(BaseModel):
@@ -110,14 +109,16 @@ def login(
     return LoginResponse(access_token=access_token)
 
 
-@router.get("/me")
+@router.get("/me", response_model=AuthMeResponse)
 def me(current_user: UserAccount = Depends(get_current_user)):
-    return {
-        "id": current_user.id,
-        "phone": current_user.phone,
-        "name": current_user.name,
-        "status": current_user.status,
-    }
+    return AuthMeResponse(
+        id=current_user.id,
+        phone=current_user.phone,
+        name=current_user.name,
+        status=current_user.status,
+        is_initialized=current_user.password_hash is not None,
+    )
+
 
 @router.post("/init", response_model=InitAccountResponse)
 def init_account(

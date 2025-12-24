@@ -22,3 +22,11 @@ class InitAccountRequest(BaseModel):
 
 class InitAccountResponse(BaseModel):
     message: str = "账号初始化成功"
+
+
+class AuthMeResponse(BaseModel):
+    id: int
+    phone: str
+    name: str | None
+    status: int
+    is_initialized: bool
