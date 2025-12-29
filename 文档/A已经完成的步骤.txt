@@ -1,3 +1,17 @@
+
 创建 Vue3 + Vite 项目（现在要做）
 依赖安装成功
 可以运行项目
+配置 Tailwind CSS（@tailwindcss/vite）
+配置 shadcn-vue 组件库（选择 Neutral 主题）
+添加 @/* 路径映射（tsconfig.json/tsconfig.app.json）
+安装 vite-tsconfig-paths 和 @types/node
+更新 vite.config.ts 配置
+添加 Button 组件测试通过
+安装 vue-router, pinia, axios
+配置路由系统（创建 11 个路由、11 个页面组件）
+在 main.ts 中引入路由和 Pinia
+创建多端布局（AdminLayout 电脑端、StudentLayout 手机H5、InterviewerLayout 电脑端）
+修改路由使用嵌套路由适配多端
+封装 Axios API 层（request.ts + 8 个模块）
+配置 Pinia 用户状态管理（user.ts）

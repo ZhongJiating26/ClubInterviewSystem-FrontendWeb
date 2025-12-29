@@ -1,0 +1,99 @@
+import axios, { type AxiosRequestConfig, type AxiosResponse, type AxiosError } from 'axios'
+import { useUserStore } from '@/stores/user'
+
+const request = axios.create({
+  baseURL: '',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
+
+// 需要统一响应格式的接口路径（这些接口返回 { code, data, message }）
+const NEED_WRAPPED_PATHS = ['/applications', '/interviews', '/notifications', '/tickets', '/statistics', '/score', '/student']
+
+// 请求拦截器
+request.interceptors.request.use(
+  (config) => {
+    const userStore = useUserStore()
+    if (userStore.token) {
+      config.headers.Authorization = `Bearer ${userStore.token}`
+    }
+    return config
+  },
+  (error: AxiosError) => {
+    return Promise.reject(error)
+  }
+)
+
+// 响应拦截器
+request.interceptors.response.use(
+  (response: AxiosResponse) => {
+    const { data, config } = response
+    const url = (config.url || '')
+
+    // 判断是否需要统一响应格式处理
+    const needsWrapped = NEED_WRAPPED_PATHS.some(path => url.startsWith(path))
+
+    if (needsWrapped) {
+      // 统一响应格式: { code: 200, data: xxx, message: "" }
+      if (data.code === 200 || data.success) {
+        return data.data || data
+      }
+      return Promise.reject(new Error(data.message || '请求失败'))
+    }
+
+    // 直接返回原始数据（如 /auth/* 接口）
+    return data
+  },
+  (error: AxiosError) => {
+    const { response } = error
+    if (response) {
+      // 尝试从响应体获取 detail 字段
+      const errorData = response.data as any
+      const errorDetail = errorData?.detail || errorData?.message
+
+      switch (response.status) {
+        case 401:
+          const userStore = useUserStore()
+          userStore.logout()
+          window.location.href = '/login'
+          return Promise.reject(new Error('登录已过期，请重新登录'))
+        case 403:
+          return Promise.reject(new Error('没有权限访问'))
+        case 404:
+          return Promise.reject(new Error('请求的资源不存在'))
+        case 422:
+          // FastAPI validation error, use detail
+          return Promise.reject(new Error(errorDetail || '参数验证失败'))
+        case 500:
+          return Promise.reject(new Error(errorDetail || '服务器错误'))
+        default:
+          return Promise.reject(new Error(errorDetail || '请求失败'))
+      }
+    }
+    return Promise.reject(new Error('网络连接异常'))
+  }
+)
+
+export default request
+
+// 封装 GET 请求
+export function get<T = any>(url: string, params?: object, config?: AxiosRequestConfig): Promise<T> {
+  return request.get(url, { params, ...config })
+}
+
+// 封装 POST 请求
+export function post<T = any>(url: string, data?: object, config?: AxiosRequestConfig): Promise<T> {
+  return request.post(url, data, config)
+}
+
+// 封装 PUT 请求
+export function put<T = any>(url: string, data?: object, config?: AxiosRequestConfig): Promise<T> {
+  return request.put(url, data, config)
+}
+
+// 封装 DELETE 请求
+export function del<T = any>(url: string, params?: object, config?: AxiosRequestConfig): Promise<T> {
+  return request.delete(url, { params, ...config })
+}
