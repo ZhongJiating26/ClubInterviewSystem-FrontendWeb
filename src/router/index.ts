@@ -3,11 +3,16 @@ import type { RouteRecordRaw } from 'vue-router'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import InterviewerLayout from '@/layouts/InterviewerLayout.vue'
 import StudentLayout from '@/layouts/StudentLayout.vue'
+import { useUserStore } from '@/stores/user'
+
+// 公开页面，不需要登录
+const publicPaths = ['/login', '/register', '/forget-password', '/role-select', '/init']
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    redirect: '/dashboard'
+    name: 'Home',
+    // 根路径由路由守卫处理重定向
   },
   // 登录页（无布局）
   {
@@ -136,9 +141,55 @@ const router = createRouter({
 })
 
 // 路由守卫：权限验证
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, from, next) => {
   document.title = `${to.meta.title as string || '社团面试系统'} - 社团面试系统`
-  // TODO: 从 Pinia 获取用户角色进行权限验证
+
+  const userStore = useUserStore()
+  const isLoggedIn = !!userStore.token
+
+  // 公开页面直接放行
+  if (publicPaths.some(path => to.path.startsWith(path))) {
+    // 如果已登录访问登录页，跳转到首页
+    if (isLoggedIn && to.path === '/login') {
+      next('/student/apply')
+    } else {
+      next()
+    }
+    return
+  }
+
+  // 未登录则跳转到登录页
+  if (!isLoggedIn) {
+    next({ path: '/login', query: { redirect: to.fullPath } })
+    return
+  }
+
+  // 根路径根据角色跳转
+  if (to.path === '/') {
+    // 如果没有用户信息，先获取
+    if (!userStore.userInfo) {
+      try {
+        const { getMe } = await import('@/api/modules/auth')
+        const userData = await getMe()
+        userStore.setUserInfo(userData)
+      } catch (e) {
+        // 获取失败，清除 token 并跳转登录
+        userStore.logout()
+        next('/login')
+        return
+      }
+    }
+
+    const role = userStore.primaryRole || 'student'
+    const redirectMap: Record<string, string> = {
+      admin: '/admin/dashboard',
+      interviewer: '/interviewer/tasks',
+      student: '/student/apply'
+    }
+    next(redirectMap[role] || '/student/apply')
+    return
+  }
+
   next()
 })
 

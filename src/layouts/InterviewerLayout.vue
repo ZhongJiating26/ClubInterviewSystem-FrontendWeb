@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
 import { ClipboardList, LogOut } from 'lucide-vue-next'
+import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
 
 const menuItems = [
   { path: '/interviewer/tasks', name: '面试任务', icon: ClipboardList }
 ]
 
 const handleLogout = () => {
-  // TODO: 清除登录状态
-  router.push('/login')
+  userStore.logout()
 }
 </script>
 

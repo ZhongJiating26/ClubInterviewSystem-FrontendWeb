@@ -2,9 +2,11 @@
 import { ref } from 'vue'
 import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
 import { User, Bell, Ticket, LogOut } from 'lucide-vue-next'
+import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
 
 const menuItems = [
   { path: '/apply', name: '社团报名', icon: User },
@@ -13,8 +15,7 @@ const menuItems = [
 ]
 
 const handleLogout = () => {
-  // TODO: 清除登录状态
-  router.push('/login')
+  userStore.logout()
 }
 </script>
 

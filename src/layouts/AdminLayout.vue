@@ -9,9 +9,11 @@ import {
   Ticket,
   LogOut
 } from 'lucide-vue-next'
+import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
 
 const menuItems = [
   { path: '/dashboard', name: '仪表盘', icon: LayoutDashboard },
@@ -22,8 +24,7 @@ const menuItems = [
 ]
 
 const handleLogout = () => {
-  // TODO: 清除登录状态
-  router.push('/login')
+  userStore.logout()
 }
 </script>
 
