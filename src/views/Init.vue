@@ -1,13 +1,26 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { initAccount } from '@/api/modules/auth'
+import { useRouter, useRoute } from 'vue-router'
+import { initAccount, assignRole, initClub, getMe } from '@/api/modules/auth'
+import { useUserStore } from '@/stores/user'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import SchoolSelect from '@/components/SchoolSelect.vue'
 
 const router = useRouter()
+const route = useRoute()
+const userStore = useUserStore()
+
+// 从路由获取角色参数
+const role = ref(route.query.role as string || '')
+
+// 角色ID映射（根据实际后端配置调整）
+const roleIdMap: Record<string, number> = {
+  admin: 2,        // 社团管理员
+  interviewer: 3,  // 面试官
+  student: 4       // 普通学生
+}
 
 // 表单数据
 const password = ref('')
@@ -19,10 +32,64 @@ const schoolCode = ref<string | null>(null)
 const major = ref('')
 const studentNo = ref('')
 const email = ref('')
+const clubName = ref('')
 
 // 状态
 const loading = ref(false)
 const error = ref('')
+
+// 校验规则
+const validators = {
+  // 姓名：2-10个汉字
+  name: (v: string) => {
+    if (!v.trim()) return '请输入姓名'
+    if (v.length < 2 || v.length > 10) return '姓名应为2-10个字符'
+    if (!/^[\u4e00-\u9fa5]+$/.test(v)) return '姓名必须为中文'
+    return ''
+  },
+
+  // 身份证号：15位或18位
+  idCardNo: (v: string) => {
+    if (!v.trim()) return '请输入身份证号'
+    if (!/^[0-9]{15}$|^[0-9]{17}[0-9Xx]$/.test(v)) return '身份证号格式不正确'
+    return ''
+  },
+
+  // 专业：2-30个字符
+  major: (v: string) => {
+    if (!v.trim()) return '请输入专业'
+    if (v.length < 2 || v.length > 30) return '专业应为2-30个字符'
+    return ''
+  },
+
+  // 学号：6-20位数字或字母
+  studentNo: (v: string) => {
+    if (!v.trim()) return '请输入学号'
+    if (!/^[A-Za-z0-9]{6,20}$/.test(v)) return '学号应为6-20位数字或字母'
+    return ''
+  },
+
+  // 密码：至少6位
+  password: (v: string) => {
+    if (!v) return '请输入密码'
+    if (v.length < 6) return '密码至少6位'
+    return ''
+  },
+
+  // 邮箱：可选，格式验证
+  email: (v: string) => {
+    if (!v) return ''
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return '邮箱格式不正确'
+    return ''
+  },
+
+  // 社团名称：2-30个字符
+  clubName: (v: string) => {
+    if (!v.trim()) return '请输入社团名称'
+    if (v.length < 2 || v.length > 30) return '社团名称应为2-30个字符'
+    return ''
+  },
+}
 
 // 提交初始化
 const handleInit = async () => {
@@ -35,36 +102,92 @@ const handleInit = async () => {
     return
   }
 
-  // 身份证号格式验证（15-18位）
-  if (idCardNo.value.length < 15) {
-    error.value = '身份证号至少15位'
-    return
-  }
+  // 姓名校验
+  let msg = validators.name(name.value)
+  if (msg) { error.value = msg; return }
 
-  if (password.value.length < 6) {
-    error.value = '密码至少6位'
-    return
-  }
+  // 身份证号校验
+  msg = validators.idCardNo(idCardNo.value)
+  if (msg) { error.value = msg; return }
 
+  // 专业校验
+  msg = validators.major(major.value)
+  if (msg) { error.value = msg; return }
+
+  // 学号校验
+  msg = validators.studentNo(studentNo.value)
+  if (msg) { error.value = msg; return }
+
+  // 密码校验
+  msg = validators.password(password.value)
+  if (msg) { error.value = msg; return }
+
+  // 确认密码
   if (password.value !== confirmPassword.value) {
     error.value = '两次密码不一致'
     return
   }
 
+  // 邮箱校验（可选）
+  msg = validators.email(email.value)
+  if (msg) { error.value = msg; return }
+
+  // 社团管理员需要填写社团名称
+  if (role.value === 'admin') {
+    msg = validators.clubName(clubName.value)
+    if (msg) { error.value = msg; return }
+  }
+
   loading.value = true
 
   try {
-    const data = {
+    // 社团管理员：先创建社团，成功后再继续
+    if (role.value === 'admin' && schoolCode.value) {
+      await initClub({
+        club_name: clubName.value,
+        school_code: schoolCode.value
+      })
+    }
+
+    // 1. 调用 initAccount 完成注册
+    const data: any = {
       password: password.value,
       name: name.value,
       id_card_no: idCardNo.value,
       school_code: schoolCode.value,
       major: major.value,
-      student_no: studentNo.value
+      student_no: studentNo.value,
+      role: role.value
+    }
+    // 邮箱可选
+    if (email.value) {
+      data.email = email.value
     }
     await initAccount(data)
-    // 初始化成功，跳转到学生端首页
-    router.push('/student/apply')
+
+    // 2. 获取用户信息
+    const userData = await getMe()
+    userStore.setUserInfo(userData)
+    const userId = userData.id
+    if (!userId) {
+      throw new Error('无法获取用户信息')
+    }
+
+    // 3. 调用 assignRole 分配角色
+    await assignRole({
+      user_id: userId,
+      role_id: roleIdMap[role.value] || roleIdMap.student,
+      club_id: null
+    })
+
+    // 初始化成功，跳转到对应端首页
+    if (role.value === 'student') {
+      router.push('/student/apply')
+    } else if (role.value === 'interviewer') {
+      router.push('/interviewer/tasks')
+    } else {
+      router.push('/admin/dashboard')
+    }
   } catch (err: any) {
     error.value = err.message || '初始化失败'
   } finally {
@@ -79,7 +202,10 @@ const handleInit = async () => {
       <!-- 标题 -->
       <div class="flex flex-col items-center gap-2 text-center">
         <h1 class="text-2xl font-bold">完善个人信息</h1>
-        <p class="text-muted-foreground text-sm">请填写以下信息完成注册</p>
+        <p class="text-muted-foreground text-sm">
+          请填写以下信息完成注册
+          <span v-if="role" class="text-primary">({{ role === 'admin' ? '社团管理员' : role === 'interviewer' ? '面试官' : '普通学生' }})</span>
+        </p>
       </div>
 
       <!-- 表单 -->
@@ -121,6 +247,18 @@ const handleInit = async () => {
           placeholder="输入学校名称搜索"
           :required="true"
         />
+
+        <!-- 社团名称（仅社团管理员） -->
+        <div v-if="role === 'admin'" class="grid gap-2">
+          <Label for="club_name">社团名称</Label>
+          <Input
+            id="club_name"
+            v-model="clubName"
+            type="text"
+            placeholder="请输入社团名称"
+            required
+          />
+        </div>
 
         <!-- 专业 -->
         <div class="grid gap-2">

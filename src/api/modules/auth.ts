@@ -52,8 +52,27 @@ export function initAccount(data: {
   school_code: string
   major: string
   student_no: string
+  role: string
+  club_name?: string
   email?: string
   avatar_url?: string
 }) {
   return post<{ detail: string }>('/auth/init', data)
+}
+
+// 分配角色（需要 token）
+export function assignRole(data: {
+  user_id: number
+  role_id: number
+  club_id?: number | null
+}) {
+  return post<{ detail: string; user_role: { id: number; user_id: number; role_id: number; club_id: number | null } }>('/auth/assign-role', data)
+}
+
+// 社团管理员创建社团（需要 token）
+export function initClub(data: {
+  club_name: string
+  school_code: string
+}) {
+  return post<{ detail: string; club_id: number; is_new: boolean }>('/clubs/init', data)
 }

@@ -147,7 +147,7 @@ watch(query, () => {
 </script>
 
 <template>
-  <div class="school-select-container relative">
+  <div class="school-select-container relative grid gap-2">
     <Label v-if="label" :for="label">{{ label }}</Label>
 
     <div class="relative">
@@ -184,6 +184,7 @@ watch(query, () => {
       v-if="showDropdown && schools.length > 0"
       ref="dropdownRef"
       class="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-y-auto"
+      style="top: 100%;"
     >
       <button
         v-for="(school, index) in schools"
@@ -204,6 +205,7 @@ watch(query, () => {
     <div
       v-if="showDropdown && query && schools.length === 0 && !loading"
       class="absolute z-50 w-full mt-1 px-3 py-2 bg-white border rounded-md shadow-lg text-sm text-gray-500"
+      style="top: 100%;"
     >
       未找到匹配的学校
     </div>
@@ -212,6 +214,7 @@ watch(query, () => {
     <div
       v-if="loading"
       class="absolute z-50 w-full mt-1 px-3 py-2 bg-white border rounded-md shadow-lg text-sm text-gray-500"
+      style="top: 100%;"
     >
       搜索中...
     </div>

@@ -14,7 +14,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '^/(auth|applications|interviews|notifications|tickets|statistics|score|student|schools)': {
+      '^/(auth|applications|interviews|notifications|tickets|statistics|score|student|schools|clubs)': {
         target: 'http://localhost:8000',
         changeOrigin: true,
         rewrite: (path) => path,

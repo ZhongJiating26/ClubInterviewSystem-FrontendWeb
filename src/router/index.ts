@@ -30,6 +30,13 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/ForgetPassword.vue'),
     meta: { title: '忘记密码' }
   },
+  // 角色选择页（无布局）
+  {
+    path: '/role-select',
+    name: 'RoleSelect',
+    component: () => import('@/views/RoleSelect.vue'),
+    meta: { title: '选择角色' }
+  },
   // 用户信息初始化页（无布局）
   {
     path: '/init',

@@ -85,11 +85,16 @@ const handleRegister = async () => {
     })
     // 保存 token
     userStore.setToken(res.access_token)
-    // 跳转到初始化页面
-    router.push('/init')
+    // 跳转到角色选择页面
+    router.push('/role-select')
   } catch (err: any) {
-    // 显示后端返回的具体错误信息（红色）
-    error.value = err.detail || err.message || '注册失败，验证码可能不正确'
+    const msg = err.detail || err.message || '注册失败，验证码可能不正确'
+    // 如果是"手机号已注册"的提示，引导用户去登录
+    if (msg.includes('手机号已注册') || msg.includes('已注册')) {
+      error.value = msg + '，请直接登录'
+    } else {
+      error.value = msg
+    }
   } finally {
     loading.value = false
   }

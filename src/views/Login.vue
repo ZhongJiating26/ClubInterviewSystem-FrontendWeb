@@ -26,13 +26,21 @@ const handleLogin = async () => {
 
   try {
     await userStore.doLogin(phone.value, password.value)
-    const role = userStore.primaryRole || 'student'
-    const redirectMap: Record<string, string> = {
-      admin: '/admin/dashboard',
-      interviewer: '/interviewer/tasks',
-      student: '/student/apply'
+
+    // 判断是否已初始化
+    if (userStore.userInfo?.is_initialized) {
+      // 根据角色判断跳转页面（优先级：社团管理员 > 面试官 > 普通学生）
+      const role = userStore.primaryRole || 'student'
+      const redirectMap: Record<string, string> = {
+        admin: '/admin/dashboard',
+        interviewer: '/interviewer/tasks',
+        student: '/student/apply'
+      }
+      router.push(redirectMap[role] || '/student/apply')
+    } else {
+      // 未初始化，跳转到角色选择页面
+      router.push('/role-select')
     }
-    router.push(redirectMap[role] || '/')
   } catch (err: any) {
     console.error('登录错误:', err)
     // 提示更友好的错误信息

@@ -15,13 +15,14 @@ export const useUserStore = defineStore('user', () => {
   const token = ref<string>(localStorage.getItem('token') || '')
   const userInfo = ref<UserInfo | null>(null)
 
-  // 获取主角色（优先级：admin > interviewer > student）
+  // 获取主角色（优先级：社团管理员 > 面试官 > 普通学生）
   const primaryRole = computed(() => {
     if (!userInfo.value?.roles.length) return null
     const roleCodes = userInfo.value.roles.map(r => r.code)
-    if (roleCodes.includes('admin')) return 'admin'
-    if (roleCodes.includes('interviewer')) return 'interviewer'
-    if (roleCodes.includes('student')) return 'student'
+    // 后端返回的 code 格式：CLUB_ADMIN, INTERVIEWER, STUDENT
+    if (roleCodes.includes('CLUB_ADMIN') || roleCodes.includes('admin')) return 'admin'
+    if (roleCodes.includes('INTERVIEWER') || roleCodes.includes('interviewer')) return 'interviewer'
+    if (roleCodes.includes('STUDENT') || roleCodes.includes('student')) return 'student'
     return null
   })
 
