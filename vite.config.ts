@@ -13,6 +13,7 @@ export default defineConfig({
     },
   },
   server: {
+    host: '0.0.0.0', // 允许其他电脑访问
     proxy: {
       '^/(auth|applications|interviews|notifications|tickets|statistics|score|student|schools|clubs)': {
         target: 'http://localhost:8000',
