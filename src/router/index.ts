@@ -6,7 +6,7 @@ import StudentLayout from '@/layouts/StudentLayout.vue'
 import { useUserStore } from '@/stores/user'
 
 // 公开页面，不需要登录
-const publicPaths = ['/login', '/register', '/forget-password', '/role-select', '/init']
+const publicPaths = ['/login', '/register', '/forget-password', '/role-select', '/init', '/404']
 
 const routes: RouteRecordRaw[] = [
   {
@@ -132,6 +132,18 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '我的工单' }
       }
     ]
+  },
+  // 404 页面
+  {
+    path: '/404',
+    name: 'NotFound',
+    component: () => import('@/views/NotFound.vue'),
+    meta: { title: '页面未找到' }
+  },
+  // 捕获所有未匹配路由
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/404'
   }
 ]
 
