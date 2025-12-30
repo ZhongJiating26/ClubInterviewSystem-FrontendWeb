@@ -114,22 +114,22 @@ const routes: RouteRecordRaw[] = [
     meta: { roles: ['student'] },
     children: [
       {
-        path: 'apply',
-        name: 'Apply',
-        component: () => import('@/views/student/Apply.vue'),
-        meta: { title: '社团报名' }
+        path: 'home',
+        name: 'StudentHome',
+        component: () => import('@/views/student/Home.vue'),
+        meta: { title: '首页' }
       },
       {
-        path: 'notifications',
-        name: 'Notifications',
-        component: () => import('@/views/student/Notifications.vue'),
-        meta: { title: '通知中心' }
+        path: 'interviews',
+        name: 'StudentInterviews',
+        component: () => import('@/views/student/Interviews.vue'),
+        meta: { title: '面试' }
       },
       {
-        path: 'tickets',
-        name: 'StudentTickets',
-        component: () => import('@/views/student/Tickets.vue'),
-        meta: { title: '我的工单' }
+        path: 'profile',
+        name: 'StudentProfile',
+        component: () => import('@/views/student/Profile.vue'),
+        meta: { title: '我的' }
       }
     ]
   },
@@ -196,7 +196,7 @@ router.beforeEach(async (to, from, next) => {
     const redirectMap: Record<string, string> = {
       admin: '/admin/dashboard',
       interviewer: '/interviewer/tasks',
-      student: '/student/apply'
+      student: '/student/home'
     }
     next(redirectMap[role] || '/student/apply')
     return

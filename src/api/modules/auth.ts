@@ -24,6 +24,8 @@ export interface UserInfo {
   status: number
   is_initialized: boolean
   roles: UserRoleInfo[]
+  school_code?: string | null
+  school_name?: string | null
 }
 
 // 发送验证码

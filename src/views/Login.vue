@@ -34,7 +34,7 @@ const handleLogin = async () => {
       const redirectMap: Record<string, string> = {
         admin: '/admin/dashboard',
         interviewer: '/interviewer/tasks',
-        student: '/student/apply'
+        student: '/student/home'
       }
       router.push(redirectMap[role] || '/student/apply')
     } else {

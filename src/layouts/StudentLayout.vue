@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
-import { User, Bell, Ticket, LogOut } from 'lucide-vue-next'
+import { User, Bell, Ticket, LogOut, Home, Calendar, UserCircle } from 'lucide-vue-next'
 import { useUserStore } from '@/stores/user'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 
 const menuItems = [
-  { path: '/apply', name: '社团报名', icon: User },
-  { path: '/notifications', name: '通知中心', icon: Bell },
-  { path: '/student/tickets', name: '我的工单', icon: Ticket }
+  { path: '/student/home', name: '首页', icon: Home },
+  { path: '/student/interviews', name: '面试', icon: Calendar },
+  { path: '/student/profile', name: '我的', icon: UserCircle }
 ]
 
 const handleLogout = () => {
@@ -37,17 +38,22 @@ const handleLogout = () => {
     </main>
 
     <!-- 底部导航栏 -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-2">
-      <RouterLink
-        v-for="item in menuItems"
-        :key="item.path"
-        :to="item.path"
-        class="flex flex-col items-center py-2 px-4 text-xs"
-        :class="{ 'text-primary': route.path === item.path, 'text-gray-500': route.path !== item.path }"
-      >
-        <component :is="item.icon" class="w-6 h-6 mb-1" />
-        {{ item.name }}
-      </RouterLink>
-    </nav>
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t z-20">
+      <Tabs :model-value="route.path" class="w-full">
+        <TabsList class="grid grid-cols-3 gap-1 h-auto p-2 bg-transparent w-full">
+          <TabsTrigger
+            v-for="item in menuItems"
+            :key="item.path"
+            :value="item.path"
+            class="flex flex-col items-center gap-1 py-1 rounded-xl transition-all data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
+            :class="{ 'text-primary': route.path.startsWith(item.path), 'text-gray-500': !route.path.startsWith(item.path) }"
+            @click="router.push(item.path)"
+          >
+            <component :is="item.icon" class="w-5 h-5" />
+            <span class="text-xs">{{ item.name }}</span>
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+    </div>
   </div>
 </template>
