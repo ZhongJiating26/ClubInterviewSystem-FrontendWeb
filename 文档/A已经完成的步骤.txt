@@ -15,3 +15,56 @@
 修改路由使用嵌套路由适配多端
 封装 Axios API 层（request.ts + 8 个模块）
 配置 Pinia 用户状态管理（user.ts）
+
+----------------------------------------------------------------
+5️⃣ 完成登录、注册、忘记密码、角色选择、信息初始化功能（认证流程）
+
+5.1 创建登录页 Login.vue
+     - 添加表单验证
+     - 添加 API 调用
+     - 根据 is_initialized 跳转（已初始化→首页，未初始化→角色选择）
+
+5.2 创建注册页 Register.vue
+     - 添加表单验证
+     - 添加 API 调用
+
+5.3 创建忘记密码页 ForgetPassword.vue
+     - 添加表单验证
+     - 添加 API 调用
+
+5.4 创建角色选择页 RoleSelect.vue
+     - 使用 shadcn Carousel 组件
+     - 支持三种角色卡片切换
+     - 左右导航按钮
+
+5.5 创建信息初始化页 Init.vue
+     - 根据角色显示不同表单字段
+     - 社团管理员需填写社团名称
+     - 表单数据验证
+     - API 调用：initClub → initAccount → getMe → assignRole
+
+5.6 创建 SchoolSelect 学校选择组件
+     - 搜索学校功能
+     - 下拉选择
+
+5.7 添加 API 接口
+     - assignRole: 分配用户角色
+     - initClub: 创建社团
+
+5.8 添加路由守卫
+     - 公开路径：/login, /register, /forget-password, /role-select, /init
+     - 认证检查
+     - 根路径根据角色重定向
+     - 权限验证
+
+5.9 修复 bug
+     - userStore.userInfo 为空问题（添加 getMe() 调用）
+     - primaryRole 无法识别后端角色码（添加 CLUB_ADMIN 等映射）
+     - 退出登录未清除状态（调用 userStore.logout()）
+     - SchoolSelect 下拉框遮挡输入框（修复定位）
+
+5.10 配置网络访问
+     - vite.config.ts 设置 host: '0.0.0.0'
+     - 添加 /clubs 到代理配置
+
+----------------------------------------------------------------
