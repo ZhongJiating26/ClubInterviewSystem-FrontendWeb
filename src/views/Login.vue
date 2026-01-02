@@ -36,7 +36,7 @@ const handleLogin = async () => {
         interviewer: '/interviewer/tasks',
         student: '/student/home'
       }
-      router.push(redirectMap[role] || '/student/apply')
+      router.push(redirectMap[role] || '/student/home')
     } else {
       // 未初始化，跳转到角色选择页面
       router.push('/role-select')

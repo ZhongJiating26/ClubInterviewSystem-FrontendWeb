@@ -1,69 +1,140 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
+import { RouterView } from 'vue-router'
 import {
   LayoutDashboard,
   Users,
   Calendar,
   BarChart,
   Ticket,
-  LogOut
+  Settings2,
+  LifeBuoy,
+  Command,
+  Plus,
+  History,
+  ClipboardCheck,
+  Filter,
+  Building,
 } from 'lucide-vue-next'
 import { useUserStore } from '@/stores/user'
+import AppSidebar from '@/components/AppSidebar.vue'
+import NavUserCustom from '@/components/NavUserCustom.vue'
+import NavGroup from '@/components/NavGroup.vue'
+import {
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+} from '@/components/ui/sidebar'
 
-const route = useRoute()
-const router = useRouter()
 const userStore = useUserStore()
 
-const menuItems = [
-  { path: '/dashboard', name: '仪表盘', icon: LayoutDashboard },
-  { path: '/applications', name: '报名管理', icon: Users },
-  { path: '/interviews', name: '面试管理', icon: Calendar },
-  { path: '/statistics', name: '数据统计', icon: BarChart },
-  { path: '/tickets', name: '工单管理', icon: Ticket }
-]
-
-const handleLogout = () => {
-  userStore.logout()
+const data = {
+  user: {
+    name: userStore.userInfo?.name || '用户',
+    email: userStore.userInfo?.phone || '',
+    avatar: '',
+  },
+  navMain: [
+    {
+      title: '数据看板',
+      url: '/admin/dashboard',
+      icon: LayoutDashboard,
+    },
+  ],
+  navApplications: [
+    {
+      title: '发布报名',
+      url: '/admin/applications/create',
+      icon: Plus,
+    },
+    {
+      title: '历史报名记录',
+      url: '/admin/applications/history',
+      icon: History,
+    },
+    {
+      title: '报名审核',
+      url: '/admin/applications/review',
+      icon: ClipboardCheck,
+    },
+  ],
+  navInterviews: [
+    {
+      title: '发布面试',
+      url: '/admin/interviews/create',
+      icon: Plus,
+    },
+    {
+      title: '面试记录',
+      url: '/admin/interviews/records',
+      icon: History,
+    },
+    {
+      title: '面试筛选',
+      url: '/admin/interviews/filter',
+      icon: Filter,
+    },
+  ],
+  navClubs: [
+    {
+      title: '社团资料',
+      url: '/admin/clubs/profile',
+      icon: Building,
+    },
+    {
+      title: '社团人员管理',
+      url: '/admin/clubs/members',
+      icon: Users,
+    },
+  ],
+  navSystem: [
+    {
+      title: '系统设置',
+      url: '/admin/settings',
+      icon: Settings2,
+    },
+  ],
 }
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-100 flex">
-    <!-- 侧边栏 -->
-    <aside class="w-64 bg-white border-r flex flex-col">
-      <div class="p-6 border-b">
-        <h1 class="text-xl font-bold">社团面试系统</h1>
-        <p class="text-sm text-gray-500 mt-1">管理后台</p>
-      </div>
+  <SidebarProvider>
+    <AppSidebar variant="inset">
+      <template #header>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" as-child>
+              <a href="#">
+                <div class="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                  <Command class="size-4" />
+                </div>
+                <div class="grid flex-1 text-left text-sm leading-tight">
+                  <span class="truncate font-medium">社团面试系统</span>
+                  <span class="truncate text-xs">管理后台</span>
+                </div>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </template>
+      <template #content>
+        <NavGroup :items="data.navMain" />
+        <NavGroup title="报名管理" :items="data.navApplications" />
+        <NavGroup title="面试管理" :items="data.navInterviews" />
+        <NavGroup title="社团管理" :items="data.navClubs" />
+        <NavGroup title="系统" :items="data.navSystem" class="mt-auto" />
+      </template>
+      <template #footer>
+        <NavUserCustom :user="data.user" />
+      </template>
+    </AppSidebar>
 
-      <nav class="flex-1 p-4 space-y-1">
-        <RouterLink
-          v-for="item in menuItems"
-          :key="item.path"
-          :to="item.path"
-          class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
-          :class="{ 'bg-primary text-white hover:bg-primary/90': route.path === item.path }"
-        >
-          <component :is="item.icon" class="w-5 h-5" />
-          {{ item.name }}
-        </RouterLink>
-      </nav>
-
-      <div class="p-4 border-t">
-        <button
-          @click="handleLogout"
-          class="flex items-center gap-3 w-full px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-        >
-          <LogOut class="w-5 h-5" />
-          退出登录
-        </button>
-      </div>
-    </aside>
-
-    <!-- 主内容区 -->
-    <main class="flex-1 p-8 overflow-auto">
-      <RouterView />
-    </main>
-  </div>
+    <SidebarInset>
+      <!-- 主内容区 -->
+      <main class="flex-1 p-6 overflow-auto">
+        <RouterView />
+      </main>
+    </SidebarInset>
+  </SidebarProvider>
 </template>

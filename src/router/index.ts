@@ -65,13 +65,53 @@ const routes: RouteRecordRaw[] = [
         path: 'applications',
         name: 'Applications',
         component: () => import('@/views/admin/Applications.vue'),
-        meta: { title: '报名管理' }
+        meta: { title: '报名管理' },
+        children: [
+          {
+            path: 'create',
+            name: 'ApplicationsCreate',
+            component: () => import('@/views/admin/applications/Create.vue'),
+            meta: { title: '发布报名' }
+          },
+          {
+            path: 'history',
+            name: 'ApplicationsHistory',
+            component: () => import('@/views/admin/applications/History.vue'),
+            meta: { title: '历史报名记录' }
+          },
+          {
+            path: 'review',
+            name: 'ApplicationsReview',
+            component: () => import('@/views/admin/applications/Review.vue'),
+            meta: { title: '报名审核' }
+          }
+        ]
       },
       {
         path: 'interviews',
         name: 'Interviews',
         component: () => import('@/views/admin/Interviews.vue'),
-        meta: { title: '面试管理' }
+        meta: { title: '面试管理' },
+        children: [
+          {
+            path: 'create',
+            name: 'InterviewsCreate',
+            component: () => import('@/views/admin/interviews/Create.vue'),
+            meta: { title: '发布面试' }
+          },
+          {
+            path: 'records',
+            name: 'InterviewsRecords',
+            component: () => import('@/views/admin/interviews/Records.vue'),
+            meta: { title: '面试记录' }
+          },
+          {
+            path: 'filter',
+            name: 'InterviewsFilter',
+            component: () => import('@/views/admin/interviews/Filter.vue'),
+            meta: { title: '面试筛选' }
+          }
+        ]
       },
       {
         path: 'statistics',
@@ -84,6 +124,31 @@ const routes: RouteRecordRaw[] = [
         name: 'AdminTickets',
         component: () => import('@/views/admin/Tickets.vue'),
         meta: { title: '工单管理' }
+      },
+      {
+        path: 'clubs',
+        name: 'Clubs',
+        meta: { title: '社团管理' },
+        children: [
+          {
+            path: 'profile',
+            name: 'ClubsProfile',
+            component: () => import('@/views/admin/clubs/Profile.vue'),
+            meta: { title: '社团资料' }
+          },
+          {
+            path: 'members',
+            name: 'ClubsMembers',
+            component: () => import('@/views/admin/clubs/Members.vue'),
+            meta: { title: '社团人员管理' }
+          }
+        ]
+      },
+      {
+        path: 'settings',
+        name: 'AdminSettings',
+        component: () => import('@/views/admin/settings/Settings.vue'),
+        meta: { title: '系统设置' }
       }
     ]
   },
@@ -163,7 +228,7 @@ router.beforeEach(async (to, from, next) => {
   if (publicPaths.some(path => to.path.startsWith(path))) {
     // 如果已登录访问登录页，跳转到首页
     if (isLoggedIn && to.path === '/login') {
-      next('/student/apply')
+      next('/student/home')
     } else {
       next()
     }
@@ -176,29 +241,29 @@ router.beforeEach(async (to, from, next) => {
     return
   }
 
+  // 如果没有用户信息，先获取
+  if (!userStore.userInfo) {
+    try {
+      const { getMe } = await import('@/api/modules/auth')
+      const userData = await getMe()
+      userStore.setUserInfo(userData)
+    } catch (e) {
+      // 获取失败，清除 token 并跳转登录
+      userStore.logout()
+      next('/login')
+      return
+    }
+  }
+
   // 根路径根据角色跳转
   if (to.path === '/') {
-    // 如果没有用户信息，先获取
-    if (!userStore.userInfo) {
-      try {
-        const { getMe } = await import('@/api/modules/auth')
-        const userData = await getMe()
-        userStore.setUserInfo(userData)
-      } catch (e) {
-        // 获取失败，清除 token 并跳转登录
-        userStore.logout()
-        next('/login')
-        return
-      }
-    }
-
     const role = userStore.primaryRole || 'student'
     const redirectMap: Record<string, string> = {
       admin: '/admin/dashboard',
       interviewer: '/interviewer/tasks',
       student: '/student/home'
     }
-    next(redirectMap[role] || '/student/apply')
+    next(redirectMap[role] || '/student/home')
     return
   }
 
