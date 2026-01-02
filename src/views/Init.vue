@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { initAccount, assignRole, initClub, getMe } from '@/api/modules/auth'
+import { checkClub, bindUserToClub } from '@/api/modules/clubs'
 import { useUserStore } from '@/stores/user'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -141,15 +142,30 @@ const handleInit = async () => {
   loading.value = true
 
   try {
-    // 社团管理员：先创建社团，成功后再继续
+    // 社团管理员：先检查社团是否存在
+    let clubId: number | null = null
+
     if (role.value === 'admin' && schoolCode.value) {
-      await initClub({
+      // 1. 检查社团是否存在
+      const checkRes = await checkClub({
         club_name: clubName.value,
         school_code: schoolCode.value
       })
+
+      if (checkRes.exists) {
+        // 社团已存在，报错提示联系社长加入
+        throw new Error('该社团已存在，请联系社长加入')
+      } else {
+        // 社团不存在，创建社团
+        const initRes = await initClub({
+          club_name: clubName.value,
+          school_code: schoolCode.value
+        })
+        clubId = initRes.club_id
+      }
     }
 
-    // 1. 调用 initAccount 完成注册
+    // 2. 调用 initAccount 完成注册
     const data: any = {
       password: password.value,
       name: name.value,
@@ -165,7 +181,7 @@ const handleInit = async () => {
     }
     await initAccount(data)
 
-    // 2. 获取用户信息
+    // 3. 获取用户信息
     const userData = await getMe()
     userStore.setUserInfo(userData)
     const userId = userData.id
@@ -173,12 +189,20 @@ const handleInit = async () => {
       throw new Error('无法获取用户信息')
     }
 
-    // 3. 调用 assignRole 分配角色
-    await assignRole({
-      user_id: userId,
-      role_id: roleIdMap[role.value] || roleIdMap.student,
-      club_id: null
-    })
+    // 4. 社团管理员：关联用户到社团
+    if (role.value === 'admin' && clubId) {
+      await bindUserToClub(clubId, {
+        user_id: userId,
+        role_id: roleIdMap[role.value] || roleIdMap.admin
+      })
+    } else {
+      // 非社团管理员：调用 assignRole 分配角色
+      await assignRole({
+        user_id: userId,
+        role_id: roleIdMap[role.value] || roleIdMap.student,
+        club_id: null
+      })
+    }
 
     // 初始化成功，跳转到对应端首页
     if (role.value === 'student') {
