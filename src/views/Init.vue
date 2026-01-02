@@ -195,6 +195,9 @@ const handleInit = async () => {
         user_id: userId,
         role_id: roleIdMap[role.value] || roleIdMap.admin
       })
+      // 重新获取用户信息，更新 club_id
+      const updatedUserData = await getMe()
+      userStore.setUserInfo(updatedUserData)
     } else {
       // 非社团管理员：调用 assignRole 分配角色
       await assignRole({
