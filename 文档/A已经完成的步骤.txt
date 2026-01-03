@@ -68,3 +68,54 @@
      - 添加 /clubs 到代理配置
 
 ----------------------------------------------------------------
+6️⃣ 完善管理后台页面和社团资料功能
+
+6.1 创建 404 页面 NotFound.vue
+     - 缺省状态展示
+     - 返回首页按钮
+
+6.2 添加侧边栏组件
+     - AppSidebar: 侧边栏主组件
+     - NavMain: 主导航菜单
+     - NavSecondary: 次级导航
+     - NavGroup: 导航分组
+     - NavProjects: 项目导航
+     - NavUser: 用户信息
+     - 添加 lucide-vue-next 图标
+
+6.3 配置管理后台侧边栏
+     - AdminLayout.vue 添加侧边栏导航
+     - 数据看板、报名管理、面试管理、社团管理、系统设置分组
+     - 为每个菜单项配置合适的图标
+
+6.4 创建仪表盘页面 Dashboard.vue
+     - 社团管理员登录后检查社团资料是否完善
+     - 调用 /clubs/{club_id}/profile-check 接口
+     - 资料不完整时显示黄色 Alert 提示
+     - 提供"立即完善"按钮跳转到社团资料页
+
+6.5 创建社团资料页面 ClubProfile.vue
+     - 查看模式：展示社团 Logo、名称、分类、学校、简介、状态
+     - 编辑模式：支持修改名称、分类、简介、Logo
+     - Logo 选择后本地预览，确认后上传到后端
+     - 使用 shadcn-vue 组件：Card、Button、Input、Label、Textarea、Select、Badge
+
+6.6 添加 API 接口 clubs.ts
+     - checkClubProfile: 检查社团资料完整性
+     - checkClub: 检查社团是否存在
+     - bindUserToClub: 将用户关联到社团
+     - getClub: 获取社团详情
+     - updateClub: 更新社团信息（支持同时上传 Logo 文件）
+     - uploadLogo: 上传 Logo 图片
+
+6.7 修复组件问题
+     - 修复 Textarea 组件 v-model 支持
+     - 修复 Badge 组件类型错误
+
+6.8 修复注册流程
+     - 社团管理员注册时先检查社团是否存在
+     - 存在则报错提示联系社长加入
+     - 不存在则创建社团并关联用户
+     - 关联后重新获取用户信息更新 club_id
+
+----------------------------------------------------------------

@@ -31,7 +31,8 @@ src/
 │       └── tickets.ts
 ├── assets/              # 静态资源
 ├── components/          # 公共组件
-│   └── ui/              # shadcn-vue 组件
+│   ├── ui/              # shadcn-vue 组件
+│   └── SchoolSelect.vue # 学校选择组件
 ├── layouts/             # 布局组件
 │   ├── AdminLayout.vue      # 管理员端布局（桌面端）
 │   ├── InterviewerLayout.vue # 面试官端布局（桌面端）
@@ -48,7 +49,15 @@ src/
 │   ├── ForgetPassword.vue
 │   ├── RoleSelect.vue
 │   ├── Init.vue
+│   ├── NotFound.vue
 │   ├── admin/           # 管理员端页面
+│   │   ├── Dashboard.vue
+│   │   ├── Applications.vue
+│   │   ├── Interviews.vue
+│   │   ├── Statistics.vue
+│   │   ├── Tickets.vue
+│   │   └── clubs/
+│   │       └── Profile.vue     # 社团资料页面
 │   ├── interviewer/     # 面试官端页面
 │   └── student/         # 学生端页面
 ├── App.vue
@@ -62,15 +71,27 @@ src/
 2. **面试官 (interviewer)**: 参与面试评分、评审工作（桌面端）
 3. **普通学生 (student)**: 申请加入社团、参加面试（移动端 H5）
 
-## 认证流程
+## 功能特性
 
+### 认证流程
 ```
 登录 → 注册 → 选择角色 → 初始化信息
 ```
-
 - 未初始化用户登录后自动跳转到角色选择页
 - 根据角色初始化不同的信息（社团管理员需填写社团名称）
 - 初始化完成后根据角色跳转到对应首页
+
+### 管理后台（社团管理员）
+- **仪表盘**: 展示数据看板，社团资料不完整时提示完善
+- **报名管理**: 发布报名、历史记录、报名审核
+- **面试管理**: 发布面试、面试记录、面试筛选
+- **社团管理**: 社团资料查看与编辑
+- **系统设置**: 系统配置
+
+### 社团资料页面
+- **查看模式**: 展示社团 Logo、名称、分类、学校、简介、状态
+- **编辑模式**: 支持修改名称、分类、简介、Logo
+- **Logo 处理**: 选择图片后本地预览，确认后上传后端
 
 ## 开发
 
