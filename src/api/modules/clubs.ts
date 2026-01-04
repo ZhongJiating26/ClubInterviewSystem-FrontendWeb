@@ -10,6 +10,18 @@ export interface ClubInfo {
   cert_file_url: string | null
   status: string
   created_at: string
+  recruiting_status?: 'RECRUITING' | 'NO_RECRUITMENT'
+}
+
+export interface ClubHomeInfo {
+  id: number
+  name: string
+  logo_url: string
+  description: string | null
+  category: string
+  school_name: string
+  status: string
+  recruiting_status: 'RECRUITING' | 'NO_RECRUITMENT'
 }
 
 export interface ClubProfileCheckResponse {
@@ -57,13 +69,32 @@ export function checkClub(data: { club_name: string; school_code: string }) {
 }
 
 // 将用户关联到社团
-export function bindUserToClub(clubId: number, data: { user_id: number; role_id: number }) {
+export function bindUserToClub(clubId: number, data: { user_id: number; role_code: string }) {
   return post(`/clubs/${clubId}/bind-user`, data)
 }
 
 // 获取社团详情
 export function getClub(clubId: number) {
   return get<ClubInfo>(`/clubs/${clubId}`)
+}
+
+// 获取学校社团列表（首页展示用）
+export function getClubsBySchool(params: {
+  school_code: string
+  status?: string
+}) {
+  return get<ClubHomeInfo[]>('/clubs/home-list', params)
+}
+
+// 社团详情页数据（扁平结构，包含部门、岗位、招新场次）
+export interface ClubDetailData extends ClubInfo {
+  departments: Department[]
+  positions: Position[]
+  recruitment_sessions: any[] // 招新场次列表
+}
+
+export function getClubDetail(clubId: number) {
+  return get<ClubDetailData>(`/clubs/${clubId}/detail`)
 }
 
 // 更新社团信息（支持传文件）

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
 import {
   LayoutDashboard,
   Users,
@@ -31,6 +31,7 @@ import {
 } from '@/components/ui/sidebar'
 
 const userStore = useUserStore()
+const route = useRoute()
 
 const data = {
   user: {
@@ -112,7 +113,7 @@ const data = {
 </script>
 
 <template>
-  <SidebarProvider>
+  <SidebarProvider class="h-screen">
     <AppSidebar variant="inset">
       <template #header>
         <SidebarMenu>
@@ -145,9 +146,7 @@ const data = {
 
     <SidebarInset>
       <!-- 主内容区 -->
-      <main class="flex-1 p-6 overflow-auto">
-        <RouterView />
-      </main>
+      <RouterView :key="route.fullPath" />
     </SidebarInset>
   </SidebarProvider>
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, onMounted, computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import {
   getSignupApplications,
@@ -14,10 +14,8 @@ import {
   type RecruitmentSession,
 } from '@/api/modules/recruitment'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
@@ -34,10 +32,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Search, Check, X, Eye, Clock, User } from 'lucide-vue-next'
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Check, X, Eye, User } from 'lucide-vue-next'
 
 const route = useRoute()
-const router = useRouter()
 const userStore = useUserStore()
 
 // 报名列表
@@ -50,7 +56,7 @@ const success = ref('')
 // 分页
 const page = ref(1)
 const pageSize = ref(20)
-const statusFilter = ref<SignupStatus | ''>('')
+const statusFilter = ref<SignupStatus | 'all'>('all')
 
 // 招新场次列表（用于筛选）
 const sessions = ref<RecruitmentSession[]>([])
@@ -59,18 +65,6 @@ const selectedSessionId = ref<number | null>(null)
 // 详情弹窗
 const showDetailDialog = ref(false)
 const currentApplication = ref<SignupApplication | null>(null)
-
-// 岗位详情缓存
-const positionDetails = ref<Record<number, any>>({})
-
-// 获取岗位名称
-const getPositionName = (positionId: number) => {
-  // 从缓存中查找
-  if (positionDetails.value[positionId]) {
-    return positionDetails.value[positionId].name
-  }
-  return `岗位 #${positionId}`
-}
 
 // 审核弹窗
 const showAuditDialog = ref(false)
@@ -120,7 +114,7 @@ const fetchApplications = async () => {
 
     const res = await getSignupApplications({
       recruitment_session_id: selectedSessionId.value,
-      status: statusFilter.value || undefined,
+      status: statusFilter.value === 'all' ? undefined : statusFilter.value,
       page: page.value,
       page_size: pageSize.value,
     })
@@ -187,16 +181,16 @@ const statusText: Record<string, string> = {
 }
 
 // 状态样式
-const getStatusBadge = (status: string) => {
+const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
   switch (status) {
     case 'APPROVED':
-      return 'bg-green-100 text-green-800'
+      return 'default'
     case 'PENDING':
-      return 'bg-yellow-100 text-yellow-800'
+      return 'secondary'
     case 'REJECTED':
-      return 'bg-red-100 text-red-800'
+      return 'destructive'
     default:
-      return 'bg-gray-100 text-gray-800'
+      return 'outline'
   }
 }
 
@@ -206,20 +200,25 @@ const formatDate = (dateStr: string) => {
   return new Date(dateStr).toLocaleString('zh-CN')
 }
 
-// 监听筛选条件变化
+// 筛选条件变化
 const onFilterChange = () => {
   page.value = 1
   fetchApplications()
 }
 
+// 总页数
+const totalPages = computed(() => Math.ceil(total.value / pageSize.value))
+
 // 监听路由变化
-const onRouteChange = () => {
-  const sessionId = route.query.session_id
-  if (sessionId) {
-    selectedSessionId.value = Number(sessionId)
-    fetchApplications()
+watch(
+  () => route.query.session_id,
+  (newSessionId) => {
+    if (newSessionId) {
+      selectedSessionId.value = Number(newSessionId)
+      fetchApplications()
+    }
   }
-}
+)
 
 onMounted(async () => {
   await fetchSessions()
@@ -228,134 +227,155 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="p-6">
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold mb-4">报名审核</h1>
+  <div class="flex flex-col flex-1 overflow-hidden">
+    <div class="flex-1 min-h-0 overflow-y-auto p-6">
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold mb-4">报名审核</h1>
 
-      <!-- 筛选器 -->
-      <div class="flex gap-4 mb-4">
-        <div class="w-64">
-          <Select v-model="selectedSessionId" @update:model-value="fetchApplications">
-            <SelectTrigger>
-              <SelectValue placeholder="选择招新场次" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem v-for="session in sessions" :key="session.id" :value="session.id.toString()">
-                {{ session.name }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div class="w-40">
-          <Select v-model="statusFilter" @update:model-value="onFilterChange">
-            <SelectTrigger>
-              <SelectValue placeholder="全部状态" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">全部状态</SelectItem>
-              <SelectItem value="PENDING">待审核</SelectItem>
-              <SelectItem value="APPROVED">已通过</SelectItem>
-              <SelectItem value="REJECTED">已拒绝</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-    </div>
-
-    <!-- 错误提示 -->
-    <div v-if="error" class="mb-4 p-3 text-sm text-red-600 bg-red-50 rounded-md">
-      {{ error }}
-    </div>
-
-    <!-- 成功提示 -->
-    <div v-if="success" class="mb-4 p-3 text-sm text-green-600 bg-green-50 rounded-md">
-      {{ success }}
-    </div>
-
-    <!-- 报名列表 -->
-    <div class="space-y-4">
-      <Card v-for="app in applications" :key="app.id" class="border-0">
-        <CardContent class="py-4">
-          <div class="flex items-start justify-between">
-            <div class="flex-1">
-              <div class="flex items-center gap-3 mb-2">
-                <span class="font-medium">报名人</span>
-                <span :class="['px-2 py-0.5 text-xs rounded-full', getStatusBadge(app.status)]">
-                  {{ statusText[app.status] }}
-                </span>
-              </div>
-              <p class="text-sm text-muted-foreground mb-1">
-                自我介绍：{{ app.self_intro || '暂无' }}
-              </p>
-              <p class="text-xs text-muted-foreground">
-                报名时间：{{ formatDate(app.created_at) }}
-              </p>
-              <p v-if="app.audit_reason" class="text-xs text-red-500 mt-1">
-                拒绝理由：{{ app.audit_reason }}
-              </p>
-            </div>
-            <div class="flex gap-2">
-              <Button variant="outline" size="sm" @click="viewDetail(app)">
-                <Eye class="w-4 h-4 mr-1" />
-                详情
-              </Button>
-              <Button
-                v-if="app.status === 'PENDING'"
-                variant="outline"
-                size="sm"
-                class="text-green-600"
-                @click="openAuditDialog(app, 'APPROVED')"
-              >
-                <Check class="w-4 h-4 mr-1" />
-                通过
-              </Button>
-              <Button
-                v-if="app.status === 'PENDING'"
-                variant="outline"
-                size="sm"
-                class="text-red-600"
-                @click="openAuditDialog(app, 'REJECTED')"
-              >
-                <X class="w-4 h-4 mr-1" />
-                拒绝
-              </Button>
-            </div>
+        <!-- 筛选器 -->
+        <div class="flex gap-4 mb-4">
+          <div class="w-64">
+            <Select v-model="selectedSessionId" @update:model-value="fetchApplications">
+              <SelectTrigger>
+                <SelectValue placeholder="选择招新场次" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem v-for="session in sessions" :key="session.id" :value="session.id.toString()">
+                  {{ session.name }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        </CardContent>
-      </Card>
-
-      <!-- 空状态 -->
-      <div v-if="applications.length === 0 && !loading" class="text-center py-12">
-        <p class="text-muted-foreground">暂无报名记录</p>
+          <div class="w-40">
+            <Select v-model="statusFilter" @update:model-value="onFilterChange">
+              <SelectTrigger>
+                <SelectValue placeholder="全部状态" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部状态</SelectItem>
+                <SelectItem value="PENDING">待审核</SelectItem>
+                <SelectItem value="APPROVED">已通过</SelectItem>
+                <SelectItem value="REJECTED">已拒绝</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </div>
 
-      <!-- 加载状态 -->
-      <div v-if="loading" class="text-center py-12">
-        <p class="text-muted-foreground">加载中...</p>
+      <!-- 错误提示 -->
+      <div v-if="error" class="mb-4 p-3 text-sm text-destructive bg-destructive/10 rounded-md">
+        {{ error }}
       </div>
-    </div>
 
-    <!-- 分页 -->
-    <div v-if="total > pageSize" class="mt-4 flex justify-center gap-2">
-      <Button
-        variant="outline"
-        size="sm"
-        :disabled="page === 1"
-        @click="page--; fetchApplications()"
-      >
-        上一页
-      </Button>
-      <span class="text-sm text-muted-foreground py-2">
-        第 {{ page }} 页 / 共 {{ Math.ceil(total / pageSize) }} 页
-      </span>
-      <Button
-        variant="outline"
-        size="sm"
-        :disabled="page >= Math.ceil(total / pageSize)"
-        @click="page++; fetchApplications()"
-      >
-        下一页
-      </Button>
+      <!-- 成功提示 -->
+      <div v-if="success" class="mb-4 p-3 text-sm text-green-600 bg-green-50 rounded-md">
+        {{ success }}
+      </div>
+
+      <!-- 报名表格 -->
+      <div class="border rounded-md">
+        <Table>
+          <TableCaption>
+            共 {{ total }} 条报名记录
+          </TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead class="w-[100px]">报名ID</TableHead>
+              <TableHead class="w-[140px]">报名人</TableHead>
+              <TableHead>自我介绍</TableHead>
+              <TableHead class="w-[100px]">状态</TableHead>
+              <TableHead class="w-[180px]">报名时间</TableHead>
+              <TableHead class="w-[180px]">审核时间</TableHead>
+              <TableHead class="text-right min-w-[200px]">操作</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow v-if="applications.length === 0 && !loading">
+              <TableCell :colspan="7" class="h-24 text-center text-muted-foreground">
+                暂无报名记录
+              </TableCell>
+            </TableRow>
+            <TableRow v-else-if="loading">
+              <TableCell :colspan="7" class="h-24 text-center text-muted-foreground">
+                加载中...
+              </TableCell>
+            </TableRow>
+            <TableRow v-for="app in applications" :key="app.id" class="hover:bg-muted/50">
+              <TableCell class="font-medium">#{{ app.id }}</TableCell>
+              <TableCell>
+                <div class="flex flex-col">
+                  <span class="font-medium">{{ app.user_name || `用户#${app.user_id}` }}</span>
+                  <span v-if="app.user_phone" class="text-xs text-muted-foreground">{{ app.user_phone }}</span>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div class="max-w-[300px] truncate text-sm text-muted-foreground">
+                  {{ app.self_intro || '暂无自我介绍' }}
+                </div>
+              </TableCell>
+              <TableCell>
+                <Badge :variant="getStatusVariant(app.status)">
+                  {{ statusText[app.status] }}
+                </Badge>
+              </TableCell>
+              <TableCell class="text-sm text-muted-foreground">
+                {{ formatDate(app.created_at) }}
+              </TableCell>
+              <TableCell class="text-sm text-muted-foreground">
+                {{ formatDate(app.audit_time) }}
+              </TableCell>
+              <TableCell class="text-right">
+                <div class="flex items-center justify-end gap-1">
+                  <Button variant="ghost" size="sm" @click="viewDetail(app)">
+                    <Eye class="w-4 h-4" />
+                  </Button>
+                  <Button
+                    v-if="app.status === 'PENDING'"
+                    variant="ghost"
+                    size="sm"
+                    class="text-green-600 hover:text-green-700 hover:bg-green-50"
+                    @click="openAuditDialog(app, 'APPROVED')"
+                  >
+                    <Check class="w-4 h-4" />
+                  </Button>
+                  <Button
+                    v-if="app.status === 'PENDING'"
+                    variant="ghost"
+                    size="sm"
+                    class="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    @click="openAuditDialog(app, 'REJECTED')"
+                  >
+                    <X class="w-4 h-4" />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </div>
+
+      <!-- 分页 -->
+      <div v-if="totalPages > 1" class="mt-4 flex items-center justify-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          :disabled="page === 1"
+          @click="page--; fetchApplications()"
+        >
+          上一页
+        </Button>
+        <span class="text-sm text-muted-foreground">
+          第 {{ page }} 页 / 共 {{ totalPages }} 页
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          :disabled="page >= totalPages"
+          @click="page++; fetchApplications()"
+        >
+          下一页
+        </Button>
+      </div>
     </div>
 
     <!-- 详情弹窗 -->
@@ -365,14 +385,14 @@ onMounted(async () => {
           <DialogTitle>报名详情</DialogTitle>
           <DialogDescription>查看报名人信息及所选岗位</DialogDescription>
         </DialogHeader>
-        <div v-if="currentApplication" class="space-y-4 py-4">
+        <div v-if="currentApplication" class="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
           <!-- 用户信息 -->
           <div class="space-y-2">
             <Label class="flex items-center gap-2">
               <User class="w-4 h-4" />
               报名人信息
             </Label>
-            <div class="bg-gray-50 rounded-md p-3 space-y-2">
+            <div class="bg-muted rounded-md p-3 space-y-2">
               <div class="flex justify-between text-sm">
                 <span class="text-muted-foreground">用户ID</span>
                 <span class="font-medium">{{ currentApplication.user_id }}</span>
@@ -396,16 +416,16 @@ onMounted(async () => {
           <div class="space-y-2">
             <Label>状态</Label>
             <div>
-              <span :class="['px-2 py-1 text-xs rounded-full', getStatusBadge(currentApplication.status)]">
+              <Badge :variant="getStatusVariant(currentApplication.status)">
                 {{ statusText[currentApplication.status] }}
-              </span>
+              </Badge>
             </div>
           </div>
 
           <!-- 自我介绍 -->
           <div class="space-y-2">
             <Label>自我介绍</Label>
-            <p class="text-sm bg-gray-50 rounded-md p-3">{{ currentApplication.self_intro || '暂无' }}</p>
+            <p class="text-sm bg-muted rounded-md p-3 whitespace-pre-wrap">{{ currentApplication.self_intro || '暂无' }}</p>
           </div>
 
           <!-- 报名岗位 -->
@@ -415,13 +435,11 @@ onMounted(async () => {
               <div
                 v-for="item in currentApplication.items"
                 :key="item.id"
-                class="flex items-center justify-between text-sm bg-gray-50 rounded p-3"
+                class="text-sm bg-muted rounded p-3"
               >
-                <div class="flex items-center gap-2">
-                  <span class="font-medium">{{ getPositionName(item.position_id) }}</span>
-                  <span class="text-xs text-muted-foreground">
-                    部门: {{ item.department_id || '未指定' }}
-                  </span>
+                <div class="font-medium">岗位 #{{ item.position_id }}</div>
+                <div v-if="item.department_id" class="text-xs text-muted-foreground mt-1">
+                  部门: {{ item.department_id }}
                 </div>
               </div>
             </div>
@@ -430,7 +448,7 @@ onMounted(async () => {
           <!-- 时间信息 -->
           <div class="space-y-2">
             <Label>时间信息</Label>
-            <div class="bg-gray-50 rounded-md p-3 space-y-1 text-sm">
+            <div class="bg-muted rounded-md p-3 space-y-1 text-sm">
               <div class="flex justify-between">
                 <span class="text-muted-foreground">报名时间</span>
                 <span>{{ formatDate(currentApplication.created_at) }}</span>
@@ -445,7 +463,7 @@ onMounted(async () => {
           <!-- 拒绝理由 -->
           <div v-if="currentApplication.audit_reason" class="space-y-2">
             <Label>拒绝理由</Label>
-            <p class="text-sm text-red-600 bg-red-50 rounded-md p-3">{{ currentApplication.audit_reason }}</p>
+            <p class="text-sm text-destructive bg-destructive/10 rounded-md p-3">{{ currentApplication.audit_reason }}</p>
           </div>
         </div>
         <DialogFooter>

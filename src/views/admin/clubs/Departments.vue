@@ -176,7 +176,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="p-6">
+  <div class="flex flex-col flex-1 overflow-hidden">
+    <div class="flex-1 min-h-0 overflow-y-auto p-6">
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold">部门管理</h1>
       <Button @click="openCreateDialog">
@@ -284,5 +285,6 @@ onMounted(() => {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    </div>
   </div>
 </template>

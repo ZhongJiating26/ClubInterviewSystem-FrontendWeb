@@ -90,7 +90,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="p-6">
+  <div class="flex flex-col flex-1 overflow-hidden">
+    <div class="flex-1 min-h-0 overflow-y-auto p-6">
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold">发布报名</h1>
       <Button @click="goToCreate">
@@ -155,6 +156,7 @@ onMounted(() => {
       <div v-if="loading" class="col-span-full text-center py-12">
         <p class="text-muted-foreground">加载中...</p>
       </div>
+    </div>
     </div>
   </div>
 </template>

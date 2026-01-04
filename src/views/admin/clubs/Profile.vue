@@ -217,7 +217,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="max-w-2xl mx-auto p-6">
+  <div class="flex flex-col flex-1 overflow-hidden">
+    <div class="flex-1 min-h-0 overflow-y-auto p-6">
+    <div class="max-w-2xl mx-auto">
     <h1 class="text-2xl font-bold mb-6">社团资料</h1>
 
     <!-- 错误提示 -->
@@ -384,5 +386,7 @@ onMounted(() => {
         </CardContent>
       </Card>
     </form>
+    </div>
+    </div>
   </div>
 </template>

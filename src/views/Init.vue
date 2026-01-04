@@ -23,6 +23,13 @@ const roleIdMap: Record<string, number> = {
   student: 4       // 普通学生
 }
 
+// 角色代码映射（用于 bind-user 接口）
+const roleCodeMap: Record<string, string> = {
+  admin: 'CLUB_ADMIN',
+  interviewer: 'INTERVIEWER',
+  student: 'STUDENT'
+}
+
 // 表单数据
 const password = ref('')
 const confirmPassword = ref('')
@@ -193,7 +200,7 @@ const handleInit = async () => {
     if (role.value === 'admin' && clubId) {
       await bindUserToClub(clubId, {
         user_id: userId,
-        role_id: roleIdMap[role.value] || roleIdMap.admin
+        role_code: roleCodeMap[role.value] || roleCodeMap.admin
       })
       // 重新获取用户信息，更新 club_id
       const updatedUserData = await getMe()
@@ -209,7 +216,7 @@ const handleInit = async () => {
 
     // 初始化成功，跳转到对应端首页
     if (role.value === 'student') {
-      router.push('/student/apply')
+      router.push('/student/home')
     } else if (role.value === 'interviewer') {
       router.push('/interviewer/tasks')
     } else {

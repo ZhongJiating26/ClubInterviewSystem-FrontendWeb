@@ -10,7 +10,7 @@ const request = axios.create({
 })
 
 // 需要统一响应格式的接口路径（这些接口返回 { code, data, message }）
-const NEED_WRAPPED_PATHS = ['/applications', '/interviews', '/notifications', '/tickets', '/statistics', '/score', '/student']
+const NEED_WRAPPED_PATHS = ['/student']
 
 // 请求拦截器
 request.interceptors.request.use(
@@ -19,6 +19,12 @@ request.interceptors.request.use(
     if (userStore.token) {
       config.headers.Authorization = `Bearer ${userStore.token}`
     }
+
+    // /admin/ 和 /student/ 路径与前端路由冲突，直接访问后端，绕过 Vite 代理
+    if (config.url?.startsWith('/admin/') || config.url?.startsWith('/student/')) {
+      config.baseURL = 'http://localhost:8000'
+    }
+
     return config
   },
   (error: AxiosError) => {

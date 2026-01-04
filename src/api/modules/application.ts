@@ -52,6 +52,32 @@ export interface SignupListParams {
   page_size?: number
 }
 
+// ==================== 学生报名 ====================
+
+// 提交报名请求
+export interface SubmitSignupData {
+  recruitment_session_id: number
+  position_ids: number[]
+  self_intro?: string
+}
+
+// 提交报名
+export function submitSignup(data: SubmitSignupData) {
+  return post<{ signup_id: number; status: string }>('/student/signup/applications', data)
+}
+
+// 获取用户的报名列表
+export interface MySignupParams {
+  recruitment_session_id?: number
+  status?: SignupStatus
+  page?: number
+  page_size?: number
+}
+
+export function getMySignups(params?: MySignupParams) {
+  return get<SignupListResponse>('/student/signup/applications', params)
+}
+
 // ==================== 报名审核（社团管理员） ====================
 
 // 获取报名审核列表
