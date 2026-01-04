@@ -119,3 +119,42 @@
      - 关联后重新获取用户信息更新 club_id
 
 ----------------------------------------------------------------
+7️⃣ 添加部门和岗位管理功能
+
+7.1 添加 API 接口 clubs.ts
+     - Department: 部门接口
+     - Position: 岗位接口
+     - getDepartments: 获取部门列表
+     - createDepartment: 创建部门
+     - updateDepartment: 更新部门
+     - deleteDepartment: 删除部门
+     - getPositions: 获取岗位列表
+     - createPosition: 创建岗位
+     - updatePosition: 更新岗位
+     - deletePosition: 删除岗位
+
+7.2 更新侧边栏导航
+     - AdminLayout.vue 添加部门管理和岗位管理菜单项
+     - 使用 FolderTree 图标表示部门
+     - 使用 Briefcase 图标表示岗位
+
+7.3 更新路由配置
+     - 添加 /admin/clubs/departments 路由
+     - 添加 /admin/clubs/positions 路由
+
+7.4 创建部门管理页面 Departments.vue
+     - 部门列表展示（卡片形式）
+     - 新建部门对话框
+     - 编辑部门对话框
+     - 删除部门确认对话框
+
+7.5 创建岗位管理页面 Positions.vue
+     - 岗位列表展示（卡片形式，带状态徽章）
+     - 新建岗位对话框（包含部门选择、招聘人数、状态）
+     - 编辑岗位对话框
+     - 删除岗位确认对话框
+
+7.6 添加 Dialog 组件
+     - 使用 shadcn-vue add @shadcn/dialog 安装
+
+----------------------------------------------------------------

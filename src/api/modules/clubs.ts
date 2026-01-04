@@ -1,4 +1,4 @@
-import axios, { get, post, put } from '../request'
+import axios, { get, post, put, del } from '../request'
 
 export interface ClubInfo {
   id: number
@@ -22,6 +22,28 @@ export interface ClubCheckResponse {
   exists: boolean
   club_id: number | null
   message: string
+}
+
+// 部门相关接口
+export interface Department {
+  id: number
+  club_id: number
+  name: string
+  description: string | null
+  created_at: string
+  updated_at: string
+}
+
+// 岗位相关接口
+export interface Position {
+  id: number
+  club_id: number
+  department_id: number | null
+  name: string
+  description: string | null
+  requirement: string | null
+  created_at: string
+  updated_at: string
 }
 
 // 社团资料检查
@@ -69,4 +91,63 @@ export function updateClub(clubId: number, data: {
     category: data.category,
     description: data.description
   })
+}
+
+// ==================== 部门管理 ====================
+
+// 获取部门列表
+export function getDepartments(clubId: number) {
+  return get<Department[]>(`/clubs/${clubId}/departments`)
+}
+
+// 创建部门
+export function createDepartment(clubId: number, data: {
+  name: string
+  description?: string
+}) {
+  return post<Department>(`/clubs/${clubId}/departments`, data)
+}
+
+// 更新部门
+export function updateDepartment(clubId: number, deptId: number, data: {
+  name?: string
+  description?: string
+}) {
+  return put<Department>(`/clubs/${clubId}/departments/${deptId}`, data)
+}
+
+// 删除部门
+export function deleteDepartment(clubId: number, deptId: number) {
+  return del(`/clubs/${clubId}/departments/${deptId}`)
+}
+
+// ==================== 岗位管理 ====================
+
+// 获取岗位列表
+export function getPositions(clubId: number, params?: { department_id?: number }) {
+  return get<Position[]>(`/clubs/${clubId}/positions`, params)
+}
+
+// 创建岗位
+export function createPosition(clubId: number, data: {
+  department_id?: number
+  name: string
+  description?: string
+  requirement?: string
+}) {
+  return post<Position>(`/clubs/${clubId}/positions`, data)
+}
+
+// 更新岗位
+export function updatePosition(clubId: number, posId: number, data: {
+  name?: string
+  description?: string
+  requirement?: string
+}) {
+  return put<Position>(`/clubs/${clubId}/positions/${posId}`, data)
+}
+
+// 删除岗位
+export function deletePosition(clubId: number, posId: number) {
+  return del(`/clubs/${clubId}/positions/${posId}`)
 }

@@ -137,6 +137,18 @@ const routes: RouteRecordRaw[] = [
             meta: { title: '社团资料' }
           },
           {
+            path: 'departments',
+            name: 'ClubsDepartments',
+            component: () => import('@/views/admin/clubs/Departments.vue'),
+            meta: { title: '部门管理' }
+          },
+          {
+            path: 'positions',
+            name: 'ClubsPositions',
+            component: () => import('@/views/admin/clubs/Positions.vue'),
+            meta: { title: '岗位管理' }
+          },
+          {
             path: 'members',
             name: 'ClubsMembers',
             component: () => import('@/views/admin/clubs/Members.vue'),

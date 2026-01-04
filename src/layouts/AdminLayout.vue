@@ -14,6 +14,8 @@ import {
   ClipboardCheck,
   Filter,
   Building,
+  Briefcase,
+  FolderTree,
 } from 'lucide-vue-next'
 import { useUserStore } from '@/stores/user'
 import AppSidebar from '@/components/AppSidebar.vue'
@@ -81,6 +83,16 @@ const data = {
       title: '社团资料',
       url: '/admin/clubs/profile',
       icon: Building,
+    },
+    {
+      title: '部门管理',
+      url: '/admin/clubs/departments',
+      icon: FolderTree,
+    },
+    {
+      title: '岗位管理',
+      url: '/admin/clubs/positions',
+      icon: Briefcase,
     },
     {
       title: '社团人员管理',
