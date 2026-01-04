@@ -51,7 +51,19 @@ request.interceptors.response.use(
     if (response) {
       // 尝试从响应体获取 detail 字段
       const errorData = response.data as any
-      const errorDetail = errorData?.detail || errorData?.message
+      const errorDetail = errorData?.detail
+
+      // FastAPI 422 错误是数组格式，需要特殊处理
+      let errorMessage = ''
+      if (response.status === 422 && Array.isArray(errorDetail)) {
+        // 提取所有验证错误
+        errorMessage = errorDetail.map((item: any) => {
+          const loc = item.loc?.join('.') || '未知字段'
+          return `${loc}: ${item.msg}`
+        }).join('; ')
+      } else {
+        errorMessage = errorDetail || errorData?.message || '请求失败'
+      }
 
       switch (response.status) {
         case 401:
@@ -64,12 +76,11 @@ request.interceptors.response.use(
         case 404:
           return Promise.reject(new Error('请求的资源不存在'))
         case 422:
-          // FastAPI validation error, use detail
-          return Promise.reject(new Error(errorDetail || '参数验证失败'))
+          return Promise.reject(new Error(errorMessage || '参数验证失败'))
         case 500:
-          return Promise.reject(new Error(errorDetail || '服务器错误'))
+          return Promise.reject(new Error(errorMessage || '服务器错误'))
         default:
-          return Promise.reject(new Error(errorDetail || '请求失败'))
+          return Promise.reject(new Error(errorMessage || '请求失败'))
       }
     }
     return Promise.reject(new Error('网络连接异常'))

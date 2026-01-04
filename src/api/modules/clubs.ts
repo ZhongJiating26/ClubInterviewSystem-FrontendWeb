@@ -72,14 +72,16 @@ export function updateClub(clubId: number, data: {
   category?: string
   description?: string
   logo?: File | null
+  cert_file?: File | null
 }) {
-  // 如果有 logo 文件，使用 multipart/form-data
-  if (data.logo) {
+  // 如果有文件，使用 multipart/form-data
+  if (data.logo || data.cert_file) {
     const formData = new FormData()
     if (data.name !== undefined) formData.append('name', data.name)
     if (data.category !== undefined) formData.append('category', data.category)
     if (data.description !== undefined) formData.append('description', data.description)
-    formData.append('logo', data.logo)
+    if (data.logo) formData.append('logo', data.logo)
+    if (data.cert_file) formData.append('cert_file', data.cert_file)
     return axios.put(`/clubs/${clubId}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })

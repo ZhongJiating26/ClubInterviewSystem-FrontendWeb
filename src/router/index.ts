@@ -66,12 +66,19 @@ const routes: RouteRecordRaw[] = [
         name: 'Applications',
         component: () => import('@/views/admin/Applications.vue'),
         meta: { title: '报名管理' },
+        redirect: { name: 'ApplicationsCreate' },
         children: [
           {
             path: 'create',
             name: 'ApplicationsCreate',
             component: () => import('@/views/admin/applications/Create.vue'),
             meta: { title: '发布报名' }
+          },
+          {
+            path: 'session/:id',
+            name: 'SessionWizard',
+            component: () => import('@/views/admin/applications/SessionWizard.vue'),
+            meta: { title: '招新场次向导' }
           },
           {
             path: 'history',

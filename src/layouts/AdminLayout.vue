@@ -16,6 +16,7 @@ import {
   Building,
   Briefcase,
   FolderTree,
+  ClipboardList,
 } from 'lucide-vue-next'
 import { useUserStore } from '@/stores/user'
 import AppSidebar from '@/components/AppSidebar.vue'
@@ -48,7 +49,7 @@ const data = {
     {
       title: '发布报名',
       url: '/admin/applications/create',
-      icon: Plus,
+      icon: ClipboardList,
     },
     {
       title: '历史报名记录',

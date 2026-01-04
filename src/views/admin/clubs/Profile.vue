@@ -27,10 +27,12 @@ const formData = ref({
   category: '',
   description: '',
   logo_url: '',  // 存储完整 URL
+  cert_file_url: '',  // 认证证书 URL
 })
 
 // 选择的文件
 const logoFile = ref<File | null>(null)
+const certFile = ref<File | null>(null)
 
 // 视图模式: 'view' | 'edit'
 const viewMode = ref<'view' | 'edit'>('view')
@@ -64,7 +66,8 @@ const fetchClub = async () => {
       name: res.name,
       category: res.category,
       description: res.description,
-      logo_url: res.logo_url
+      logo_url: res.logo_url,
+      cert_file_url: res.cert_file_url || ''
     }
   } catch (err: any) {
     error.value = err.message || '获取社团信息失败'
@@ -78,9 +81,11 @@ const handleEdit = () => {
     name: originalData.value.name,
     category: originalData.value.category,
     description: originalData.value.description,
-    logo_url: originalData.value.logo_url
+    logo_url: originalData.value.logo_url,
+    cert_file_url: originalData.value.cert_file_url || ''
   }
   logoFile.value = null
+  certFile.value = null
   viewMode.value = 'edit'
   error.value = ''
   success.value = ''
@@ -93,9 +98,11 @@ const handleCancel = () => {
     name: originalData.value.name,
     category: originalData.value.category,
     description: originalData.value.description,
-    logo_url: originalData.value.logo_url
+    logo_url: originalData.value.logo_url,
+    cert_file_url: originalData.value.cert_file_url || ''
   }
   logoFile.value = null
+  certFile.value = null
   viewMode.value = 'view'
   error.value = ''
 }
@@ -122,6 +129,42 @@ const handleLogoChange = (event: Event) => {
   error.value = ''
 }
 
+// 选择证书文件
+const handleCertChange = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  // 验证文件类型 (PDF 或 图片)
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf']
+  if (!allowedTypes.includes(file.type)) {
+    error.value = '请选择 PDF 或图片文件'
+    return
+  }
+
+  // 验证文件大小 (5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    error.value = '文件大小不能超过 5MB'
+    return
+  }
+
+  certFile.value = file
+  error.value = ''
+}
+
+// 获取证书显示名称
+const getCertFileName = () => {
+  if (certFile.value) {
+    return certFile.value.name
+  }
+  if (formData.value.cert_file_url) {
+    // 从 URL 中提取文件名
+    const urlParts = formData.value.cert_file_url.split('/')
+    return urlParts[urlParts.length - 1] || '认证证书'
+  }
+  return ''
+}
+
 // 确认修改
 const handleConfirm = async () => {
   if (!originalData.value) return
@@ -138,7 +181,8 @@ const handleConfirm = async () => {
       name: formData.value.name,
       category: formData.value.category,
       description: formData.value.description,
-      logo: logoFile.value  // 直接传文件，后端处理
+      logo: logoFile.value,
+      cert_file: certFile.value
     })
 
     success.value = '保存成功'
@@ -210,6 +254,19 @@ onMounted(() => {
           <div>
             <Label class="text-sm text-muted-foreground">社团简介</Label>
             <p class="mt-1">{{ formData.description || '暂无简介' }}</p>
+          </div>
+          <div>
+            <Label class="text-sm text-muted-foreground">认证证书</Label>
+            <div v-if="formData.cert_file_url" class="mt-1">
+              <a
+                :href="formData.cert_file_url"
+                target="_blank"
+                class="text-blue-600 hover:underline flex items-center gap-1"
+              >
+                查看证书
+              </a>
+            </div>
+            <p v-else class="mt-1 text-muted-foreground">暂无证书</p>
           </div>
           <div class="pt-4 border-t">
             <Button @click="handleEdit">修改资料</Button>
@@ -283,6 +340,36 @@ onMounted(() => {
               placeholder="请输入社团简介"
               rows="4"
             />
+          </div>
+
+          <!-- 认证证书 -->
+          <div class="space-y-2">
+            <Label>认证证书</Label>
+            <div class="flex items-center gap-4">
+              <div class="flex-1">
+                <div v-if="formData.cert_file_url || certFile" class="flex items-center gap-2">
+                  <span class="text-sm text-green-600">✓ 已上传</span>
+                  <span class="text-sm text-muted-foreground">{{ getCertFileName() }}</span>
+                </div>
+                <p v-else class="text-sm text-muted-foreground">暂未上传证书</p>
+              </div>
+              <div>
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  class="hidden"
+                  id="cert-upload"
+                  @change="handleCertChange"
+                />
+                <Label
+                  for="cert-upload"
+                  class="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium border border-gray-300 bg-white hover:bg-gray-50 px-4 py-2"
+                >
+                  {{ certFile ? '重新上传' : '上传证书' }}
+                </Label>
+                <p class="text-xs text-muted-foreground mt-1">支持 PDF、jpg、png，最大 5MB</p>
+              </div>
+            </div>
           </div>
 
           <!-- 按钮组 -->
