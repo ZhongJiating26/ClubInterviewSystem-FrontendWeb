@@ -10,7 +10,7 @@ const request = axios.create({
 })
 
 // 需要统一响应格式的接口路径（这些接口返回 { code, data, message }）
-const NEED_WRAPPED_PATHS = ['/api/student']
+const NEED_WRAPPED_PATHS = ['/api/student', '/api/admin', '/api/interviewer']
 
 // 请求拦截器
 request.interceptors.request.use(
