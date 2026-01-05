@@ -93,7 +93,7 @@ export function getSignupApplicationDetail(id: number) {
 // 审核报名
 export function auditSignupApplication(id: number, data: AuditSignupData) {
   return post<{ detail: string; signup_id: number; new_status: string }>(
-    `/admin/signup/applications/${id}/audit`,
+    `/api/admin/signup/applications/${id}/audit`,
     data
   )
 }

@@ -198,7 +198,7 @@ onMounted(() => {
 
     <!-- 部门列表 -->
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      <Card v-for="dept in departments" :key="dept.id" class="border-0">
+      <Card v-for="dept in departments" :key="dept.id" class="border-0 h-full flex flex-col">
         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle class="text-lg">{{ dept.name }}</CardTitle>
           <div class="flex items-center gap-1">
@@ -210,11 +210,11 @@ onMounted(() => {
             </Button>
           </div>
         </CardHeader>
-        <CardContent>
-          <p class="text-sm text-muted-foreground">
+        <CardContent class="flex-1 flex flex-col">
+          <p class="text-sm text-muted-foreground break-words line-clamp-3">
             {{ dept.description || '暂无描述' }}
           </p>
-          <p class="text-xs text-muted-foreground mt-2">
+          <p class="text-xs text-muted-foreground mt-auto pt-2">
             创建时间: {{ new Date(dept.created_at).toLocaleDateString() }}
           </p>
         </CardContent>

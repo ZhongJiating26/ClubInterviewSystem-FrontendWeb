@@ -297,8 +297,8 @@ const handleUpdateQuota = async (sessionPositionId: number, positionId: number, 
   }
 }
 
-// 创建场次
-const handleCreate = async () => {
+// 创建场次（通用函数）
+const handleCreate = async (status: 'DRAFT' | 'PUBLISHED' = 'DRAFT') => {
   const clubId = getClubId()
   if (!clubId) {
     error.value = '未找到社团信息'
@@ -321,10 +321,11 @@ const handleCreate = async () => {
 
   const formatTime = (time: string) => time ? time + ':00' : ''
 
-  const data = {
+  const data: any = {
     name: formData.value.name.trim(),
     start_time: formatTime(formData.value.start_time),
     end_time: formatTime(formData.value.end_time),
+    status,
   }
 
   if (formData.value.description.trim()) {
@@ -349,7 +350,7 @@ const handleCreate = async () => {
       })
     }
 
-    success.value = '创建成功'
+    success.value = status === 'PUBLISHED' ? '发布成功' : '草稿已保存'
     clearDraft()
     router.push('/admin/applications/create')
   } catch (err: any) {
@@ -357,6 +358,16 @@ const handleCreate = async () => {
   } finally {
     loading.value = false
   }
+}
+
+// 保存草稿
+const handleSaveDraft = async () => {
+  await handleCreate('DRAFT')
+}
+
+// 发布新建场次
+const handlePublishForNew = async () => {
+  await handleCreate('PUBLISHED')
 }
 
 // 发布场次
@@ -861,10 +872,15 @@ onUnmounted(() => {
               <ChevronLeft class="w-4 h-4 mr-1" />
               上一步
             </Button>
-            <Button @click="handlePublish" :disabled="loading">
-              <Check class="w-4 h-4 mr-1" />
-              {{ loading ? '发布中...' : '确认发布' }}
-            </Button>
+            <div class="flex gap-2">
+              <Button variant="outline" @click="handleSaveDraft" :disabled="loading">
+                {{ loading ? '保存中...' : '保存草稿' }}
+              </Button>
+              <Button @click="handlePublishForNew" :disabled="loading">
+                <Check class="w-4 h-4 mr-1" />
+                {{ loading ? '发布中...' : '确认发布' }}
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

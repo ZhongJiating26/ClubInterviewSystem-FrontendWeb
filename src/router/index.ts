@@ -99,11 +99,18 @@ const routes: RouteRecordRaw[] = [
         name: 'Interviews',
         component: () => import('@/views/admin/Interviews.vue'),
         meta: { title: '面试管理' },
+        redirect: { name: 'InterviewsList' },
         children: [
           {
-            path: 'create',
-            name: 'InterviewsCreate',
-            component: () => import('@/views/admin/interviews/Create.vue'),
+            path: 'list',
+            name: 'InterviewsList',
+            component: () => import('@/views/admin/interviews/List.vue'),
+            meta: { title: '面试场次' }
+          },
+          {
+            path: 'wizard',
+            name: 'InterviewsWizard',
+            component: () => import('@/views/admin/interviews/Wizard.vue'),
             meta: { title: '发布面试' }
           },
           {

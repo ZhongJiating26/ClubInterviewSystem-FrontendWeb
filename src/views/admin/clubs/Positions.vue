@@ -231,21 +231,21 @@ onMounted(async () => {
 
     <!-- 岗位列表 -->
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      <Card v-for="pos in positions" :key="pos.id" class="border-0">
+      <Card v-for="pos in positions" :key="pos.id" class="border-0 h-full flex flex-col">
         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle class="text-lg">{{ pos.name }}</CardTitle>
         </CardHeader>
-        <CardContent class="space-y-2">
+        <CardContent class="flex-1 flex flex-col">
           <p class="text-sm text-muted-foreground">
             部门: {{ getDepartmentName(pos.department_id) }}
           </p>
-          <p v-if="pos.description" class="text-sm">
+          <p v-if="pos.description" class="text-sm break-words line-clamp-2 mt-2">
             {{ pos.description }}
           </p>
-          <p v-if="pos.requirement" class="text-xs text-muted-foreground">
+          <p v-if="pos.requirement" class="text-xs text-muted-foreground break-words line-clamp-2 mt-2">
             要求: {{ pos.requirement }}
           </p>
-          <div class="flex items-center gap-1 pt-2">
+          <div class="flex items-center gap-1 pt-2 mt-auto">
             <Button variant="ghost" size="icon" @click="openEditDialog(pos)">
               <Pencil class="w-4 h-4" />
             </Button>

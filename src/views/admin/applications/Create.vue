@@ -57,14 +57,33 @@ const goToReview = (sessionId: number) => {
   router.push(`/admin/applications/review?session_id=${sessionId}`)
 }
 
-// 状态文本
+// 获取动态状态（基于时间和 status）
+const getDynamicStatus = (session: RecruitmentSession) => {
+  if (session.status === 'DRAFT') {
+    return { text: '草稿', class: 'bg-yellow-100 text-yellow-800' }
+  }
+
+  const now = new Date()
+  const startTime = new Date(session.start_time)
+  const endTime = new Date(session.end_time)
+
+  if (now < startTime) {
+    return { text: '未到时间', class: 'bg-blue-100 text-blue-800' }
+  } else if (now >= startTime && now <= endTime) {
+    return { text: '发布中', class: 'bg-green-100 text-green-800' }
+  } else {
+    return { text: '已截止', class: 'bg-gray-100 text-gray-800' }
+  }
+}
+
+// 状态文本（保留用于兼容）
 const statusText: Record<string, string> = {
   DRAFT: '草稿',
   PUBLISHED: '发布中',
   CLOSED: '已结束',
 }
 
-// 状态样式
+// 状态样式（保留用于兼容）
 const getStatusClass = (status: string) => {
   switch (status) {
     case 'PUBLISHED':
@@ -110,8 +129,8 @@ onMounted(() => {
       <Card v-for="session in sessions" :key="session.id" class="border-0 hover:shadow-md transition-shadow">
         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle class="text-lg">{{ session.name }}</CardTitle>
-          <span :class="['px-2 py-1 text-xs rounded-full', getStatusClass(session.status)]">
-            {{ statusText[session.status] }}
+          <span :class="['px-2 py-1 text-xs rounded-full', getDynamicStatus(session).class]">
+            {{ getDynamicStatus(session).text }}
           </span>
         </CardHeader>
         <CardContent class="space-y-3">

@@ -3,7 +3,7 @@
 ## 文档信息
 
 - **系统名称**：校园社团招新与面试管理系统
-- **版本**：v1.0.0
+- **版本**：v1.1.0
 - **更新日期**：2026-01-05
 - **Base URL**：`http://192.168.1.100:8000/api`（局域网访问）
 
@@ -19,8 +19,14 @@
 - [5. 岗位管理模块](#5-岗位管理模块)
 - [6. 招新场次管理模块](#6-招新场次管理模块)
 - [7. 报名管理模块](#7-报名管理模块)
-- [8. 面试管理模块](#8-面试管理模块)
-- [9. 学生端模块](#9-学生端模块)
+- [8. 面试场次管理](#8-面试管理模块)
+- [9. 面试官管理模块](#9-面试官管理模块)
+- [10. 评分项管理模块](#10-评分项管理模块)
+- [11. 候选人排期管理](#11-候选人排期管理)
+- [12. 面试记录与评分](#12-面试记录与评分)
+- [13. 录取结果管理](#13-录取结果管理)
+- [14. 学生端面试功能](#14-学生端面试功能)
+- [15. 学生端模块](#15-学生端模块)
 - [数据模型](#数据模型)
 - [错误码说明](#错误码说明)
 
@@ -1205,22 +1211,40 @@ Authorization: Bearer {token}
 
 ### 8.1 创建面试场次
 
-创建新的面试场次。
+创建新的面试场次，需关联招新场次。
 
 **接口地址：**
 ```
-POST /api/interview/sessions
+POST /api/interview/sessions?club_id={club_id}
 Authorization: Bearer {token}
 ```
 
 **请求体：**
 ```json
 {
-  "club_id": 1,
+  "recruitment_session_id": 1,
   "name": "第一轮面试",
   "description": "技术面试",
+  "place": "A101会议室",
   "start_time": "2026-01-10T09:00:00",
   "end_time": "2026-01-10T18:00:00"
+}
+```
+
+**响应：**
+```json
+{
+  "id": 1,
+  "club_id": 1,
+  "recruitment_session_id": 1,
+  "name": "第一轮面试",
+  "description": "技术面试",
+  "place": "A101会议室",
+  "start_time": "2026-01-10T09:00:00",
+  "end_time": "2026-01-10T18:00:00",
+  "status": "DRAFT",
+  "created_at": "2026-01-05T10:00:00",
+  "updated_at": "2026-01-05T10:00:00"
 }
 ```
 
@@ -1236,9 +1260,238 @@ GET /api/interview/sessions?club_id={club_id}&status={status}
 Authorization: Bearer {token}
 ```
 
+**查询参数：**
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| club_id | number | 否 | 筛选指定社团的场次 |
+| status | string | 否 | 筛选指定状态：DRAFT/OPEN/CLOSED |
+
 ---
 
-### 8.3 安排候选人
+### 8.3 获取面试场次详情
+
+获取指定面试场次的详细信息。
+
+**接口地址：**
+```
+GET /api/interview/sessions/{session_id}
+Authorization: Bearer {token}
+```
+
+---
+
+### 8.4 更新面试场次
+
+更新面试场次信息。
+
+**接口地址：**
+```
+PUT /api/interview/sessions/{session_id}
+Authorization: Bearer {token}
+```
+
+**请求体：**
+```json
+{
+  "name": "第一轮面试（更新）",
+  "status": "OPEN"
+}
+```
+
+---
+
+### 8.5 删除面试场次
+
+删除面试场次（软删除）。
+
+**接口地址：**
+```
+DELETE /api/interview/sessions/{session_id}
+Authorization: Bearer {token}
+```
+
+---
+
+## 9. 面试官管理模块
+
+### 9.1 添加面试官到场次
+
+将面试官添加到面试场次。
+
+**接口地址：**
+```
+POST /api/interview/sessions/{session_id}/interviewers
+Authorization: Bearer {token}
+```
+
+**请求体：**
+```json
+{
+  "interviewer_id": 10,
+  "role": "LEAD"
+}
+```
+
+**参数说明：**
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| interviewer_id | number | 是 | 面试官用户ID |
+| role | string | 否 | 角色：LEAD（主面试官）/INTERVIEWER（面试官）/OBSERVER（观察员），默认 INTERVIEWER |
+
+**响应：**
+```json
+{
+  "id": 1,
+  "session_id": 1,
+  "interviewer_id": 10,
+  "role": "LEAD",
+  "created_at": "2026-01-05T10:00:00"
+}
+```
+
+---
+
+### 9.2 获取场次的面试官列表
+
+获取指定面试场次的所有面试官。
+
+**接口地址：**
+```
+GET /api/interview/sessions/{session_id}/interviewers
+Authorization: Bearer {token}
+```
+
+**响应：**
+```json
+[
+  {
+    "id": 1,
+    "session_id": 1,
+    "interviewer_id": 10,
+    "role": "LEAD",
+    "created_at": "2026-01-05T10:00:00"
+  },
+  {
+    "id": 2,
+    "session_id": 1,
+    "interviewer_id": 11,
+    "role": "INTERVIEWER",
+    "created_at": "2026-01-05T10:00:00"
+  }
+]
+```
+
+---
+
+### 9.3 移除面试官
+
+从面试场次移除面试官。
+
+**接口地址：**
+```
+DELETE /api/interview/sessions/{session_id}/interviewers/{interviewer_id}
+Authorization: Bearer {token}
+```
+
+---
+
+## 10. 评分项管理模块
+
+### 10.1 添加评分项到场次
+
+将评分项添加到面试场次。
+
+**接口地址：**
+```
+POST /api/interview/sessions/{session_id}/score-items
+Authorization: Bearer {token}
+```
+
+**请求体：**
+```json
+{
+  "score_item_id": 1,
+  "order_no": 1
+}
+```
+
+**参数说明：**
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| score_item_id | number | 是 | 评分项ID |
+| order_no | number | 是 | 排序（从1开始） |
+
+---
+
+### 10.2 获取场次的评分项列表
+
+获取指定面试场次的所有评分项（按排序）。
+
+**接口地址：**
+```
+GET /api/interview/sessions/{session_id}/score-items
+Authorization: Bearer {token}
+```
+
+**响应：**
+```json
+[
+  {
+    "id": 1,
+    "session_id": 1,
+    "score_item_id": 1,
+    "order_no": 1,
+    "created_at": "2026-01-05T10:00:00"
+  },
+  {
+    "id": 2,
+    "session_id": 1,
+    "score_item_id": 2,
+    "order_no": 2,
+    "created_at": "2026-01-05T10:00:00"
+  }
+]
+```
+
+---
+
+### 10.3 移除评分项
+
+从面试场次移除评分项。
+
+**接口地址：**
+```
+DELETE /api/interview/sessions/{session_id}/score-items/{score_item_id}
+Authorization: Bearer {token}
+```
+
+---
+
+### 10.4 批量设置评分项
+
+设置场次的评分项列表（先删除旧的，再添加新的）。
+
+**接口地址：**
+```
+PUT /api/interview/sessions/{session_id}/score-items
+Authorization: Bearer {token}
+```
+
+**请求体：**
+```json
+{
+  "score_item_ids": [1, 2, 3, 4, 5]
+}
+```
+
+---
+
+## 11. 候选人排期管理
+
+### 11.1 创建候选人排期
 
 为候选人安排面试时间。
 
@@ -1252,8 +1505,8 @@ Authorization: Bearer {token}
 ```json
 {
   "session_id": 1,
+  "signup_session_id": 123,
   "candidate_user_id": 10,
-  "interviewer_ids": [1, 2],
   "planned_start_time": "2026-01-10T10:00:00",
   "planned_end_time": "2026-01-10T11:00:00"
 }
@@ -1261,52 +1514,168 @@ Authorization: Bearer {token}
 
 ---
 
-### 8.4 确认面试
+### 11.2 获取场次的候选人列表
 
-候选人确认或拒绝面试邀请。
+获取指定面试场次的所有候选人。
 
 **接口地址：**
 ```
-PUT /api/interviews/{interview_id}/confirmation
+GET /api/interview/sessions/{session_id}/candidates
+Authorization: Bearer {token}
+```
+
+---
+
+### 11.3 获取候选人详情
+
+获取候选人排期的详细信息。
+
+**接口地址：**
+```
+GET /api/interview/candidates/{candidate_id}
+Authorization: Bearer {token}
+```
+
+---
+
+## 12. 面试记录与评分
+
+### 12.1 创建面试记录
+
+面试官开始面试时创建记录。
+
+**接口地址：**
+```
+POST /api/interview/records
 Authorization: Bearer {token}
 ```
 
 **请求体：**
 ```json
 {
-  "status": "CONFIRMED"
+  "session_id": 1,
+  "signup_session_id": 123,
+  "candidate_user_id": 10,
+  "summary": "初步印象良好"
 }
 ```
 
 ---
 
-### 8.5 提交面试记录
+### 12.2 更新面试记录
 
-面试官提交面试记录和评分。
+更新面试记录内容（不含评分）。
 
 **接口地址：**
 ```
-POST /api/interviews/{interview_id}/records
+PUT /api/interview/records/{record_id}
+Authorization: Bearer {token}
+```
+
+**请求体：**
+```json
+{
+  "summary": "综合能力较强",
+  "record_text": "详细记录内容",
+  "recording_url": "http://example.com/recording.mp3"
+}
+```
+
+---
+
+### 12.3 添加评分
+
+为面试记录添加评分。
+
+**接口地址：**
+```
+POST /api/interview/records/{record_id}/scores
+Authorization: Bearer {token}
+```
+
+**请求体：**
+```json
+{
+  "score_item_id": 1,
+  "score": 8.5,
+  "remark": "表现优秀"
+}
+```
+
+---
+
+### 12.4 获取评分列表
+
+获取面试记录的评分列表。
+
+**接口地址：**
+```
+GET /api/interview/records/{record_id}/scores
 Authorization: Bearer {token}
 ```
 
 ---
 
-### 8.6 获取面试结果
+### 12.5 提交评分
 
-查看面试成绩和录取结果。
+提交评分，计算总分并更新记录状态。
 
 **接口地址：**
 ```
-GET /api/interviews/{interview_id}/result
+POST /api/interview/records/{record_id}/submit-score
 Authorization: Bearer {token}
 ```
 
 ---
 
-## 9. 学生端模块
+## 13. 录取结果管理
 
-### 9.1 获取我的面试列表
+### 13.1 更新录取结果
+
+更新候选人的录取结果。
+
+**接口地址：**
+```
+PUT /api/interview/candidates/{candidate_id}/admission?decided_by={user_id}
+Authorization: Bearer {token}
+```
+
+**请求体：**
+```json
+{
+  "result": "PASS",
+  "department_id": 1,
+  "position_id": 2,
+  "remark": "综合素质优秀"
+}
+```
+
+**参数说明：**
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| result | string | 录取结果：PASS（通过）/REJECT（拒绝）/WAITLIST（候补） |
+| department_id | number | 录取所属部门ID |
+| position_id | number | 录取岗位ID |
+| remark | string | 备注说明 |
+
+---
+
+### 13.2 获取录取结果
+
+查看候选人的录取结果。
+
+**接口地址：**
+```
+GET /api/interview/candidates/{candidate_id}/admission
+Authorization: Bearer {token}
+```
+
+---
+
+## 14. 学生端面试功能
+
+### 14.1 获取我的面试列表
 
 获取当前用户的所有面试安排。
 
@@ -1328,7 +1697,7 @@ Authorization: Bearer {token}
     "planned_end_time": "2026-01-10T11:00:00",
     "actual_start_time": null,
     "actual_end_time": null,
-    "status": "SCHEDULED",
+    "status": "PENDING",
     "final_score": null,
     "created_at": "2026-01-05T10:00:00"
   }
@@ -1337,7 +1706,40 @@ Authorization: Bearer {token}
 
 ---
 
-### 9.2 获取通知列表
+### 14.2 确认/拒绝面试
+
+候选人确认或拒绝面试邀请。
+
+**接口地址：**
+```
+PUT /api/student/interviews/{interview_id}/confirmation
+Authorization: Bearer {token}
+```
+
+**请求体：**
+```json
+{
+  "status": "CONFIRMED"
+}
+```
+
+---
+
+### 14.3 获取面试结果
+
+查看面试成绩和录取结果。
+
+**接口地址：**
+```
+GET /api/student/interviews/{interview_id}/result
+Authorization: Bearer {token}
+```
+
+---
+
+## 15. 学生端模块
+
+### 15.1 获取通知列表
 
 获取用户的通知列表。
 
@@ -1364,7 +1766,7 @@ Authorization: Bearer {token}
 
 ---
 
-### 9.3 标记通知为已读
+### 15.2 标记通知为已读
 
 标记指定通知为已读。
 
@@ -1376,7 +1778,7 @@ Authorization: Bearer {token}
 
 ---
 
-### 9.4 标记所有通知为已读
+### 15.3 标记所有通知为已读
 
 标记所有通知为已读。
 
@@ -1388,7 +1790,7 @@ Authorization: Bearer {token}
 
 ---
 
-### 9.5 获取未读通知数量
+### 15.4 获取未读通知数量
 
 获取未读通知数量。
 
@@ -1407,7 +1809,7 @@ Authorization: Bearer {token}
 
 ---
 
-### 9.6 提交工单
+### 15.5 提交工单
 
 提交问题咨询工单。
 
@@ -1429,7 +1831,7 @@ Authorization: Bearer {token}
 
 ---
 
-### 9.7 获取我的工单列表
+### 15.6 获取我的工单列表
 
 获取当前用户提交的工单列表。
 
@@ -1441,7 +1843,7 @@ Authorization: Bearer {token}
 
 ---
 
-### 9.8 获取工单详情
+### 15.7 获取工单详情
 
 获取指定工单的详情和回复列表。
 
@@ -1453,7 +1855,7 @@ Authorization: Bearer {token}
 
 ---
 
-### 9.9 添加工单回复
+### 15.8 添加工单回复
 
 为工单添加新的回复。
 

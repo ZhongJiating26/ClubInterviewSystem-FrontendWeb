@@ -172,10 +172,10 @@ onMounted(() => {
                   招 {{ position.recruit_quota }} 人
                 </span>
               </div>
-              <p v-if="position.position_description" class="text-xs text-gray-600 mt-1 mb-1">
+              <p v-if="position.position_description" class="text-xs text-gray-600 mt-1 mb-1 break-words">
                 {{ position.position_description }}
               </p>
-              <p v-if="position.position_requirement" class="text-xs text-gray-500">
+              <p v-if="position.position_requirement" class="text-xs text-gray-500 break-words">
                 <span class="font-medium text-gray-700">任职要求：</span>{{ position.position_requirement }}
               </p>
             </div>

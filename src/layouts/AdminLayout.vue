@@ -17,6 +17,7 @@ import {
   Briefcase,
   FolderTree,
   ClipboardList,
+  List,
 } from 'lucide-vue-next'
 import { useUserStore } from '@/stores/user'
 import AppSidebar from '@/components/AppSidebar.vue'
@@ -65,9 +66,9 @@ const data = {
   ],
   navInterviews: [
     {
-      title: '发布面试',
-      url: '/admin/interviews/create',
-      icon: Plus,
+      title: '面试场次',
+      url: '/admin/interviews/list',
+      icon: List,
     },
     {
       title: '面试记录',
