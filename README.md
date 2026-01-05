@@ -2,6 +2,13 @@
 
 基于 Vue 3 + TypeScript + Vite + shadcn-vue 构建的社团面试管理系统前端项目。
 
+## 文档导航
+
+- [待办列表 (TODO)](./TODO.md) - 当前开发任务和计划
+- [更新日志 (CHANGELOG)](./CHANGELOG.md) - 已完成功能和更新记录
+- [完整API接口文档](./文档/完整API接口文档.md) - 后端 API 接口文档
+- [系统详细设计文档](./文档/系统详细设计文档v2.7.md) - 系统设计文档
+
 ## 技术栈
 
 - **框架**: Vue 3 (Script Setup)
@@ -93,6 +100,50 @@ src/
 - **编辑模式**: 支持修改名称、分类、简介、Logo
 - **Logo 处理**: 选择图片后本地预览，确认后上传后端
 
+### 学生端页面优化（最新）
+- **个人资料页**: 完整信息展示（姓名、学号、手机号、邮箱、专业、学校）
+- **面试记录页**: 标签固定顶部，不随内容滚动
+- **样式优化**: 统一淡灰色边框，移除阴影效果
+- **响应式布局**: 移动端 H5 适配
+
+## 最近更新
+
+### 2026-01-05
+- ✅ 学生个人资料页面 API 集成，支持显示完整信息
+- ✅ 面试记录页面 TabsList 固定顶部
+- ✅ 所有页面 header 和底部按钮区域样式优化（淡灰色边框）
+- ✅ HTML 语言设置为中文 (`lang="zh-CN"`)
+- ✅ 首页卡片阴影移除
+
+详细更新记录请查看 [CHANGELOG.md](./CHANGELOG.md)
+
+## 后端接口需求
+
+### 待实现的接口
+- **GET `/api/student/profile`** - 获取学生详细信息
+  - 响应格式：
+    ```json
+    {
+      "code": 200,
+      "data": {
+        "id": 27,
+        "phone": "18267692330",
+        "name": "钟佳挺",
+        "email": "example@email.com",
+        "student_no": "202301001",
+        "major": "计算机科学与技术",
+        "school_code": "4133013021",
+        "school_name": "浙大城市学院",
+        "status": 1,
+        "is_initialized": true,
+        "avatar_url": null
+      },
+      "message": ""
+    }
+    ```
+
+更多待开发任务请查看 [TODO.md](./TODO.md)
+
 ## 开发
 
 ### 安装依赖
@@ -130,8 +181,9 @@ npm run build
 - `/tickets` - 工单管理
 - `/statistics` - 数据统计
 - `/score` - 评分接口
-- `/student` - 学生相关
+- `/student` - 学生相关（含 `/api/student/profile` 获取详细信息）
 - `/schools` - 学校信息
 - `/clubs` - 社团管理
+- `/invitations` - 邀请管理
 
 代理目标: `http://localhost:8000`
