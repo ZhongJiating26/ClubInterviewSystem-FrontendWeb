@@ -60,22 +60,22 @@ export interface Position {
 
 // 社团资料检查
 export function checkClubProfile(clubId: number) {
-  return get<ClubProfileCheckResponse>(`/clubs/${clubId}/profile-check`)
+  return get<ClubProfileCheckResponse>(`/api/clubs/${clubId}/profile-check`)
 }
 
 // 检查社团是否存在
 export function checkClub(data: { club_name: string; school_code: string }) {
-  return post<ClubCheckResponse>('/clubs/check', data)
+  return post<ClubCheckResponse>('/api/clubs/check', data)
 }
 
 // 将用户关联到社团
 export function bindUserToClub(clubId: number, data: { user_id: number; role_code: string }) {
-  return post(`/clubs/${clubId}/bind-user`, data)
+  return post(`/api/clubs/${clubId}/bind-user`, data)
 }
 
 // 获取社团详情
 export function getClub(clubId: number) {
-  return get<ClubInfo>(`/clubs/${clubId}`)
+  return get<ClubInfo>(`/api/clubs/${clubId}`)
 }
 
 // 获取学校社团列表（首页展示用）
@@ -83,7 +83,7 @@ export function getClubsBySchool(params: {
   school_code: string
   status?: string
 }) {
-  return get<ClubHomeInfo[]>('/clubs/home-list', params)
+  return get<ClubHomeInfo[]>('/api/clubs/home-list', params)
 }
 
 // 社团详情页数据（扁平结构，包含部门、岗位、招新场次）
@@ -94,7 +94,7 @@ export interface ClubDetailData extends ClubInfo {
 }
 
 export function getClubDetail(clubId: number) {
-  return get<ClubDetailData>(`/clubs/${clubId}/detail`)
+  return get<ClubDetailData>(`/api/clubs/${clubId}/detail`)
 }
 
 // 更新社团信息（支持传文件）
@@ -113,13 +113,13 @@ export function updateClub(clubId: number, data: {
     if (data.description !== undefined) formData.append('description', data.description)
     if (data.logo) formData.append('logo', data.logo)
     if (data.cert_file) formData.append('cert_file', data.cert_file)
-    return axios.put(`/clubs/${clubId}`, formData, {
+    return axios.put(`/api/clubs/${clubId}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
   }
 
   // 否则使用 JSON
-  return put(`/clubs/${clubId}`, {
+  return put(`/api/clubs/${clubId}`, {
     name: data.name,
     category: data.category,
     description: data.description
@@ -130,7 +130,7 @@ export function updateClub(clubId: number, data: {
 
 // 获取部门列表
 export function getDepartments(clubId: number) {
-  return get<Department[]>(`/clubs/${clubId}/departments`)
+  return get<Department[]>(`/api/clubs/${clubId}/departments`)
 }
 
 // 创建部门
@@ -138,7 +138,7 @@ export function createDepartment(clubId: number, data: {
   name: string
   description?: string
 }) {
-  return post<Department>(`/clubs/${clubId}/departments`, data)
+  return post<Department>(`/api/clubs/${clubId}/departments`, data)
 }
 
 // 更新部门
@@ -146,19 +146,19 @@ export function updateDepartment(clubId: number, deptId: number, data: {
   name?: string
   description?: string
 }) {
-  return put<Department>(`/clubs/${clubId}/departments/${deptId}`, data)
+  return put<Department>(`/api/clubs/${clubId}/departments/${deptId}`, data)
 }
 
 // 删除部门
 export function deleteDepartment(clubId: number, deptId: number) {
-  return del(`/clubs/${clubId}/departments/${deptId}`)
+  return del(`/api/clubs/${clubId}/departments/${deptId}`)
 }
 
 // ==================== 岗位管理 ====================
 
 // 获取岗位列表
 export function getPositions(clubId: number, params?: { department_id?: number }) {
-  return get<Position[]>(`/clubs/${clubId}/positions`, params)
+  return get<Position[]>(`/api/clubs/${clubId}/positions`, params)
 }
 
 // 创建岗位
@@ -168,7 +168,7 @@ export function createPosition(clubId: number, data: {
   description?: string
   requirement?: string
 }) {
-  return post<Position>(`/clubs/${clubId}/positions`, data)
+  return post<Position>(`/api/clubs/${clubId}/positions`, data)
 }
 
 // 更新岗位
@@ -177,10 +177,10 @@ export function updatePosition(clubId: number, posId: number, data: {
   description?: string
   requirement?: string
 }) {
-  return put<Position>(`/clubs/${clubId}/positions/${posId}`, data)
+  return put<Position>(`/api/clubs/${clubId}/positions/${posId}`, data)
 }
 
 // 删除岗位
 export function deletePosition(clubId: number, posId: number) {
-  return del(`/clubs/${clubId}/positions/${posId}`)
+  return del(`/api/clubs/${clubId}/positions/${posId}`)
 }

@@ -33,37 +33,37 @@ export interface InterviewResult {
 }
 
 export function getInterviewList(params: InterviewListParams) {
-  return get('/interviews', params)
+  return get('/api/interviews', params)
 }
 
 export function getInterviewDetail(id: number) {
-  return get(`/interviews/${id}`)
+  return get<Interview>(`/api/interviews/${id}`)
 }
 
 export function createInterview(data: Partial<Interview>) {
-  return post('/interviews', data)
+  return post('/api/interviews', data)
 }
 
 export function updateInterview(id: number, data: Partial<Interview>) {
-  return put(`/interviews/${id}`, data)
+  return put(`/api/interviews/${id}`, data)
 }
 
 export function deleteInterview(id: number) {
-  return del(`/interviews/${id}`)
+  return del(`/api/interviews/${id}`)
 }
 
 export function getInterviewResults(interviewId: number, params?: any) {
-  return get(`/interviews/${interviewId}/results`, params)
+  return get(`/api/interviews/${interviewId}/results`, params)
 }
 
 export function assignInterviewers(interviewId: number, interviewers: string[]) {
-  return put(`/interviews/${interviewId}/interviewers`, { interviewers })
+  return put(`/api/interviews/${interviewId}/interviewers`, { interviewers })
 }
 
 export function getMyInterviewTasks() {
-  return get('/interviewer/tasks')
+  return get('/api/interviewer/tasks')
 }
 
 export function getStudentInterviewResult(studentId: number) {
-  return get(`/students/${studentId}/interview-result`)
+  return get(`/api/students/${studentId}/interview-result`)
 }

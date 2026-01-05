@@ -32,7 +32,7 @@ export interface CreateTicketParams {
 }
 
 export function getTicketList(params: TicketListParams) {
-  return get('/tickets', params)
+  return get('/api/tickets', params)
 }
 
 export function getTicketDetail(id: number) {
@@ -40,7 +40,7 @@ export function getTicketDetail(id: number) {
 }
 
 export function createTicket(data: CreateTicketParams) {
-  return post('/tickets', data)
+  return post('/api/tickets', data)
 }
 
 export function replyTicket(id: number, reply: string) {
@@ -52,5 +52,5 @@ export function closeTicket(id: number) {
 }
 
 export function getMyTickets() {
-  return get('/student/tickets')
+  return get('/api/student/tickets')
 }

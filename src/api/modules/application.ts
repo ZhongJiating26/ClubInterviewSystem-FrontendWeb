@@ -63,7 +63,7 @@ export interface SubmitSignupData {
 
 // 提交报名
 export function submitSignup(data: SubmitSignupData) {
-  return post<{ signup_id: number; status: string }>('/student/signup/applications', data)
+  return post<{ signup_id: number; status: string }>('/api/student/signup/applications', data)
 }
 
 // 获取用户的报名列表
@@ -75,19 +75,19 @@ export interface MySignupParams {
 }
 
 export function getMySignups(params?: MySignupParams) {
-  return get<SignupListResponse>('/student/signup/applications', params)
+  return get<SignupListResponse>('/api/student/signup/applications', params)
 }
 
 // ==================== 报名审核（社团管理员） ====================
 
 // 获取报名审核列表
 export function getSignupApplications(params: SignupListParams) {
-  return get<SignupListResponse>('/admin/signup/applications', params)
+  return get<SignupListResponse>('/api/admin/signup/applications', params)
 }
 
 // 获取报名详情
 export function getSignupApplicationDetail(id: number) {
-  return get<SignupApplication>(`/admin/signup/applications/${id}`)
+  return get<SignupApplication>(`/api/admin/signup/applications/${id}`)
 }
 
 // 审核报名

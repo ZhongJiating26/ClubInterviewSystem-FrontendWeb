@@ -10,18 +10,18 @@ export interface StudentApplication {
 }
 
 export function getMyApplication() {
-  return get('/student/application')
+  return get('/api/student/application')
 }
 
 export function submitApplication(data: {
   department: string
   introduction: string
 }) {
-  return post('/student/application', data)
+  return post('/api/student/application', data)
 }
 
 export function getMyInterviewInfo() {
-  return get('/student/interview')
+  return get('/api/student/interview')
 }
 
 export function updateProfile(data: {
@@ -29,5 +29,5 @@ export function updateProfile(data: {
   email?: string
   nickname?: string
 }) {
-  return put('/student/profile', data)
+  return put('/api/student/profile', data)
 }

@@ -47,7 +47,7 @@ export interface CreateSessionData {
 
 // 创建招新场次（club_id 作为 query 参数）
 export function createRecruitmentSession(clubId: number, data: CreateSessionData) {
-  return post<RecruitmentSession>('/recruitment/sessions', data, {
+  return post<RecruitmentSession>('/api/recruitment/sessions', data, {
     params: { club_id: clubId }
   })
 }
@@ -69,29 +69,29 @@ export function getRecruitmentSessions(params?: {
   club_id?: number
   status?: SessionStatus
 }) {
-  return get<RecruitmentSession[]>('/recruitment/sessions', params)
+  return get<RecruitmentSession[]>('/api/recruitment/sessions', params)
 }
 
 // 获取招新场次详情
 export function getRecruitmentSession(id: number) {
-  return get<RecruitmentSession>(`/recruitment/sessions/${id}`)
+  return get<RecruitmentSession>(`/api/recruitment/sessions/${id}`)
 }
 
 // 更新招新场次
 export function updateRecruitmentSession(id: number, data: UpdateSessionData) {
-  return put<RecruitmentSession>(`/recruitment/sessions/${id}`, data)
+  return put<RecruitmentSession>(`/api/recruitment/sessions/${id}`, data)
 }
 
 // 删除招新场次
 export function deleteRecruitmentSession(id: number) {
-  return del(`/recruitment/sessions/${id}`)
+  return del(`/api/recruitment/sessions/${id}`)
 }
 
 // ==================== 招新场次岗位关联 ====================
 
 // 关联岗位到招新场次
 export function addSessionPosition(sessionId: number, data: AddSessionPositionData) {
-  return post<SessionPosition>(`/recruitment/sessions/${sessionId}/positions`, data)
+  return post<SessionPosition>(`/api/recruitment/sessions/${sessionId}/positions`, data)
 }
 
 // 更新招新场次的岗位配额
@@ -100,15 +100,15 @@ export interface UpdateSessionPositionData {
 }
 
 export function updateSessionPosition(sessionId: number, positionId: number, data: UpdateSessionPositionData) {
-  return put<SessionPosition>(`/recruitment/sessions/${sessionId}/positions/${positionId}`, data)
+  return put<SessionPosition>(`/api/recruitment/sessions/${sessionId}/positions/${positionId}`, data)
 }
 
 // 取消关联岗位
 export function removeSessionPosition(sessionId: number, positionId: number) {
-  return del(`/recruitment/sessions/${sessionId}/positions/${positionId}`)
+  return del(`/api/recruitment/sessions/${sessionId}/positions/${positionId}`)
 }
 
 // 获取招新场次关联的岗位
 export function getSessionPositions(sessionId: number) {
-  return get<SessionPosition[]>(`/recruitment/sessions/${sessionId}/positions`)
+  return get<SessionPosition[]>(`/api/recruitment/sessions/${sessionId}/positions`)
 }

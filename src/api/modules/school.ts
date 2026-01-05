@@ -13,5 +13,5 @@ export interface SchoolSearchResult {
 
 // 搜索学校
 export function searchSchools(keyword: string) {
-  return get<SchoolSearchResult>('/schools/search', { q: keyword })
+  return get<SchoolSearchResult>('/api/schools/search', { q: keyword })
 }

@@ -21,11 +21,11 @@ export interface ScoreParams {
 }
 
 export function getScoreCriteria(department: string) {
-  return get('/score/criteria', { department })
+  return get('/api/score/criteria', { department })
 }
 
 export function submitScore(data: ScoreParams) {
-  return post('/score', data)
+  return post('/api/score', data)
 }
 
 export function getScoreDetail(resultId: number) {

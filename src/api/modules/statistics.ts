@@ -25,21 +25,21 @@ export interface DailyStatistics {
 }
 
 export function getOverviewStatistics() {
-  return get('/statistics/overview')
+  return get('/api/statistics/overview')
 }
 
 export function getDepartmentStatistics(department?: string) {
-  return get('/statistics/department', { department })
+  return get('/api/statistics/department', { department })
 }
 
 export function getDailyStatistics(params: { startDate: string; endDate: string; type?: string }) {
-  return get('/statistics/daily', params)
+  return get('/api/statistics/daily', params)
 }
 
 export function getInterviewStatistics(interviewId?: number) {
-  return get('/statistics/interview', { interviewId })
+  return get('/api/statistics/interview', { interviewId })
 }
 
 export function exportStatistics(params: any) {
-  return post('/statistics/export', params, { responseType: 'blob' })
+  return post('/api/statistics/export', params, { responseType: 'blob' })
 }

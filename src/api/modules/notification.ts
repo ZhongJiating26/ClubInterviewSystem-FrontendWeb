@@ -11,11 +11,11 @@ export interface Notification {
 }
 
 export function getNotificationList(params?: { page?: number; pageSize?: number; isRead?: boolean }) {
-  return get('/notifications', params)
+  return get('/api/notifications', params)
 }
 
 export function getUnreadCount() {
-  return get('/notifications/unread-count')
+  return get('/api/notifications/unread-count')
 }
 
 export function markAsRead(id: number) {
@@ -23,5 +23,5 @@ export function markAsRead(id: number) {
 }
 
 export function markAllAsRead() {
-  return put('/notifications/read-all')
+  return put('/api/notifications/read-all')
 }

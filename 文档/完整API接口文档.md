@@ -5,7 +5,7 @@
 - **系统名称**：校园社团招新与面试管理系统
 - **版本**：v1.0.0
 - **更新日期**：2026-01-05
-- **Base URL**：`http://127.0.0.1:8000`
+- **Base URL**：`http://192.168.1.100:8000/api`（局域网访问）
 
 ---
 
@@ -71,7 +71,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-POST /auth/send-code
+POST /api/auth/send-code
 ```
 
 **请求体：**
@@ -104,7 +104,7 @@ POST /auth/send-code
 
 **接口地址：**
 ```
-POST /auth/register
+POST /api/auth/register
 ```
 
 **请求体：**
@@ -136,7 +136,7 @@ POST /auth/register
 
 **接口地址：**
 ```
-POST /auth/login
+POST /api/auth/login
 ```
 
 **请求体：**
@@ -167,7 +167,7 @@ POST /auth/login
 
 **接口地址：**
 ```
-GET /auth/me
+GET /api/auth/me
 Authorization: Bearer {token}
 ```
 
@@ -200,7 +200,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-POST /auth/init
+POST /api/auth/init
 Authorization: Bearer {token}
 ```
 
@@ -235,7 +235,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-POST /auth/assign-role
+POST /api/auth/assign-role
 Authorization: Bearer {token}
 ```
 
@@ -269,7 +269,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-POST /auth/revoke-role
+POST /api/auth/revoke-role
 Authorization: Bearer {token}
 ```
 
@@ -299,7 +299,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /schools
+GET /api/schools
 ```
 
 **响应：**
@@ -322,7 +322,7 @@ GET /schools
 
 **接口地址：**
 ```
-GET /schools/by-code/{code}
+GET /api/schools/by-code/{code}
 ```
 
 **路径参数：**
@@ -350,7 +350,7 @@ GET /schools/by-code/{code}
 
 **接口地址：**
 ```
-POST /clubs/init
+POST /api/clubs/init
 Authorization: Bearer {token}
 ```
 
@@ -380,7 +380,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-PUT /clubs/{club_id}
+PUT /api/clubs/{club_id}
 Authorization: Bearer {token}
 ```
 
@@ -422,7 +422,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-POST /clubs/{club_id}/cert
+POST /api/clubs/{club_id}/cert
 Authorization: Bearer {token}
 Content-Type: multipart/form-data
 ```
@@ -448,7 +448,7 @@ Content-Type: multipart/form-data
 
 **接口地址：**
 ```
-POST /clubs/check-name
+POST /api/clubs/check-name
 Authorization: Bearer {token}
 ```
 
@@ -475,7 +475,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-POST /clubs/{club_id}/bind-user
+POST /api/clubs/{club_id}/bind-user
 Authorization: Bearer {token}
 ```
 
@@ -502,7 +502,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /clubs/home-list?school_code={code}&status={status}
+GET /api/clubs/home-list?school_code={code}&status={status}
 ```
 
 **查询参数：**
@@ -534,7 +534,7 @@ GET /clubs/home-list?school_code={code}&status={status}
 
 **接口地址：**
 ```
-GET /clubs/{id}/detail
+GET /api/clubs/{id}/detail
 ```
 
 **路径参数：**
@@ -610,7 +610,7 @@ GET /clubs/{id}/detail
 
 **接口地址：**
 ```
-POST /departments
+POST /api/departments
 Authorization: Bearer {token}
 ```
 
@@ -642,7 +642,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /departments?club_id={club_id}
+GET /api/departments?club_id={club_id}
 ```
 
 **查询参数：**
@@ -672,7 +672,7 @@ GET /departments?club_id={club_id}
 
 **接口地址：**
 ```
-PUT /departments/{id}
+PUT /api/departments/{id}
 Authorization: Bearer {token}
 ```
 
@@ -701,7 +701,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-DELETE /departments/{id}
+DELETE /api/departments/{id}
 Authorization: Bearer {token}
 ```
 
@@ -717,7 +717,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-POST /positions
+POST /api/positions
 Authorization: Bearer {token}
 ```
 
@@ -753,7 +753,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /positions?club_id={club_id}
+GET /api/positions?club_id={club_id}
 ```
 
 **响应：**
@@ -778,7 +778,7 @@ GET /positions?club_id={club_id}
 
 **接口地址：**
 ```
-PUT /positions/{id}
+PUT /api/positions/{id}
 Authorization: Bearer {token}
 ```
 
@@ -799,7 +799,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-DELETE /positions/{id}
+DELETE /api/positions/{id}
 Authorization: Bearer {token}
 ```
 
@@ -813,7 +813,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /recruitment/sessions?club_id={club_id}&status={status}
+GET /api/recruitment/sessions?club_id={club_id}&status={status}
 ```
 
 **查询参数：**
@@ -861,7 +861,7 @@ GET /recruitment/sessions?club_id={club_id}&status={status}
 
 **接口地址：**
 ```
-POST /recruitment/sessions?club_id={club_id}
+POST /api/recruitment/sessions?club_id={club_id}
 Authorization: Bearer {token}
 ```
 
@@ -886,7 +886,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /recruitment/sessions/{session_id}
+GET /api/recruitment/sessions/{session_id}
 ```
 
 **响应：** 返回场次对象（包含关联的岗位列表）
@@ -899,7 +899,7 @@ GET /recruitment/sessions/{session_id}
 
 **接口地址：**
 ```
-PUT /recruitment/sessions/{session_id}
+PUT /api/recruitment/sessions/{session_id}
 Authorization: Bearer {token}
 ```
 
@@ -919,7 +919,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-DELETE /recruitment/sessions/{session_id}
+DELETE /api/recruitment/sessions/{session_id}
 Authorization: Bearer {token}
 ```
 
@@ -933,7 +933,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-POST /recruitment/sessions/{session_id}/positions
+POST /api/recruitment/sessions/{session_id}/positions
 Authorization: Bearer {token}
 ```
 
@@ -953,7 +953,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-PUT /recruitment/sessions/{session_id}/positions/{pos_id}
+PUT /api/recruitment/sessions/{session_id}/positions/{pos_id}
 Authorization: Bearer {token}
 ```
 
@@ -972,7 +972,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-DELETE /recruitment/sessions/{session_id}/positions/{pos_id}
+DELETE /api/recruitment/sessions/{session_id}/positions/{pos_id}
 Authorization: Bearer {token}
 ```
 
@@ -984,7 +984,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /recruitment/sessions/{session_id}/positions
+GET /api/recruitment/sessions/{session_id}/positions
 ```
 
 ---
@@ -997,7 +997,7 @@ GET /recruitment/sessions/{session_id}/positions
 
 **接口地址：**
 ```
-POST /student/signup/applications
+POST /api/student/signup/applications
 Authorization: Bearer {token}
 ```
 
@@ -1030,7 +1030,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /student/signup/applications?recruitment_session_id={id}&status={status}&page={page}&page_size={size}
+GET /api/student/signup/applications?recruitment_session_id={id}&status={status}&page={page}&page_size={size}
 Authorization: Bearer {token}
 ```
 
@@ -1073,7 +1073,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /student/applications/{application_id}
+GET /api/student/applications/{application_id}
 Authorization: Bearer {token}
 ```
 
@@ -1085,7 +1085,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-PUT /student/applications/{application_id}
+PUT /api/student/applications/{application_id}
 Authorization: Bearer {token}
 ```
 
@@ -1097,7 +1097,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-DELETE /student/applications/{application_id}
+DELETE /api/student/applications/{application_id}
 Authorization: Bearer {token}
 ```
 
@@ -1111,7 +1111,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /admin/signup/applications?recruitment_session_id={id}&status={status}&page={page}&page_size={size}
+GET /api/admin/signup/applications?recruitment_session_id={id}&status={status}&page={page}&page_size={size}
 Authorization: Bearer {token}
 ```
 
@@ -1147,7 +1147,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /admin/signup/applications/{signup_id}
+GET /api/admin/signup/applications/{signup_id}
 Authorization: Bearer {token}
 ```
 
@@ -1159,7 +1159,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-POST /admin/signup/applications/{signup_id}/audit
+POST /api/admin/signup/applications/{signup_id}/audit
 Authorization: Bearer {token}
 ```
 
@@ -1195,7 +1195,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-DELETE /admin/signup/applications/{signup_id}
+DELETE /api/admin/signup/applications/{signup_id}
 Authorization: Bearer {token}
 ```
 
@@ -1209,7 +1209,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-POST /interview/sessions
+POST /api/interview/sessions
 Authorization: Bearer {token}
 ```
 
@@ -1232,7 +1232,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /interview/sessions?club_id={club_id}&status={status}
+GET /api/interview/sessions?club_id={club_id}&status={status}
 Authorization: Bearer {token}
 ```
 
@@ -1244,7 +1244,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-POST /interview/candidates
+POST /api/interview/candidates
 Authorization: Bearer {token}
 ```
 
@@ -1267,7 +1267,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-PUT /interviews/{interview_id}/confirmation
+PUT /api/interviews/{interview_id}/confirmation
 Authorization: Bearer {token}
 ```
 
@@ -1286,7 +1286,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-POST /interviews/{interview_id}/records
+POST /api/interviews/{interview_id}/records
 Authorization: Bearer {token}
 ```
 
@@ -1298,7 +1298,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /interviews/{interview_id}/result
+GET /api/interviews/{interview_id}/result
 Authorization: Bearer {token}
 ```
 
@@ -1312,7 +1312,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /student/interviews/my
+GET /api/student/interviews/my
 Authorization: Bearer {token}
 ```
 
@@ -1343,7 +1343,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /student/notifications?unread_only={true|false}
+GET /api/student/notifications?unread_only={true|false}
 Authorization: Bearer {token}
 ```
 
@@ -1370,7 +1370,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-PUT /student/notifications/{id}/read
+PUT /api/student/notifications/{id}/read
 Authorization: Bearer {token}
 ```
 
@@ -1382,7 +1382,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-PUT /student/notifications/read-all
+PUT /api/student/notifications/read-all
 Authorization: Bearer {token}
 ```
 
@@ -1394,7 +1394,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /student/notifications/count
+GET /api/student/notifications/count
 Authorization: Bearer {token}
 ```
 
@@ -1413,7 +1413,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-POST /student/tickets
+POST /api/student/tickets
 Authorization: Bearer {token}
 ```
 
@@ -1435,7 +1435,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /student/tickets/my
+GET /api/student/tickets/my
 Authorization: Bearer {token}
 ```
 
@@ -1447,7 +1447,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /student/tickets/{ticket_id}
+GET /api/student/tickets/{ticket_id}
 Authorization: Bearer {token}
 ```
 
@@ -1459,7 +1459,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-POST /student/tickets/{ticket_id}/messages
+POST /api/student/tickets/{ticket_id}/messages
 Authorization: Bearer {token}
 ```
 
@@ -1479,7 +1479,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /student/students/profile
+GET /api/student/students/profile
 Authorization: Bearer {token}
 ```
 
@@ -1508,7 +1508,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-PUT /student/students/profile
+PUT /api/student/students/profile
 Authorization: Bearer {token}
 ```
 
@@ -1529,7 +1529,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /student/students/applications/stats
+GET /api/student/students/applications/stats
 Authorization: Bearer {token}
 ```
 
@@ -1551,7 +1551,7 @@ Authorization: Bearer {token}
 
 **接口地址：**
 ```
-GET /student/faqs?category={category}&club_id={club_id}
+GET /api/student/faqs?category={category}&club_id={club_id}
 ```
 
 **查询参数：**
@@ -1691,7 +1691,7 @@ GET /student/faqs?category={category}&club_id={club_id}
 
 1. **登录获取Token**
 ```bash
-POST /auth/login
+POST /api/auth/login
 {
   "phone": "13800138000",
   "password": "password123"
@@ -1700,12 +1700,12 @@ POST /auth/login
 
 2. **查看招新场次**
 ```bash
-GET /recruitment/sessions?club_id=1&status=PUBLISHED
+GET /api/recruitment/sessions?club_id=1&status=PUBLISHED
 ```
 
 3. **提交报名**
 ```bash
-POST /student/signup/applications
+POST /api/student/signup/applications
 Authorization: Bearer {token}
 {
   "recruitment_session_id": 1,
@@ -1716,7 +1716,7 @@ Authorization: Bearer {token}
 
 4. **查看报名状态**
 ```bash
-GET /student/signup/applications
+GET /api/student/signup/applications
 Authorization: Bearer {token}
 ```
 
@@ -1724,19 +1724,19 @@ Authorization: Bearer {token}
 
 1. **获取待审核列表**
 ```bash
-GET /admin/signup/applications?recruitment_session_id=1&status=PENDING
+GET /api/admin/signup/applications?recruitment_session_id=1&status=PENDING
 Authorization: Bearer {token}
 ```
 
 2. **查看报名详情**
 ```bash
-GET /admin/signup/applications/123
+GET /api/admin/signup/applications/123
 Authorization: Bearer {token}
 ```
 
 3. **审核通过**
 ```bash
-POST /admin/signup/applications/123/audit
+POST /api/admin/signup/applications/123/audit
 Authorization: Bearer {token}
 {
   "status": "APPROVED"

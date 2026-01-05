@@ -233,22 +233,19 @@ onMounted(async () => {
         <h1 class="text-2xl font-bold mb-4">报名审核</h1>
 
         <!-- 筛选器 -->
-        <div class="flex gap-4 mb-4">
-          <div class="w-64">
-            <Select v-model="selectedSessionId" @update:model-value="fetchApplications">
-              <SelectTrigger>
-                <SelectValue placeholder="选择招新场次" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem v-for="session in sessions" :key="session.id" :value="session.id.toString()">
-                  {{ session.name }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div class="w-40">
-            <Select v-model="statusFilter" @update:model-value="onFilterChange">
-              <SelectTrigger>
+        <div class="flex gap-1 mb-4">
+          <Select v-model="selectedSessionId" @update:model-value="fetchApplications">
+            <SelectTrigger class="w-[200px] !gap-1">
+              <SelectValue placeholder="选择招新场次" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem v-for="session in sessions" :key="session.id" :value="session.id.toString()">
+                {{ session.name }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <Select v-model="statusFilter" @update:model-value="onFilterChange">
+              <SelectTrigger class="!gap-1">
                 <SelectValue placeholder="全部状态" />
               </SelectTrigger>
               <SelectContent>
@@ -259,7 +256,6 @@ onMounted(async () => {
               </SelectContent>
             </Select>
           </div>
-        </div>
       </div>
 
       <!-- 错误提示 -->
@@ -275,7 +271,7 @@ onMounted(async () => {
       <!-- 报名表格 -->
       <div class="border rounded-md">
         <Table>
-          <TableCaption>
+          <TableCaption class="pb-4">
             共 {{ total }} 条报名记录
           </TableCaption>
           <TableHeader>

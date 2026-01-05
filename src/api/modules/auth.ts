@@ -30,20 +30,20 @@ export interface UserInfo {
 
 // 发送验证码
 export function sendCode(data: { phone: string; scene: 'REGISTER' | 'LOGIN' }) {
-  return post<{ message: string; dev_code: string | null }>('/auth/send-code', data)
+  return post<{ message: string; dev_code: string | null }>('/api/auth/send-code', data)
 }
 
 // 注册（返回 access_token）
 export function register(data: { phone: string; code: string }) {
-  return post<{ access_token: string; token_type: string }>('/auth/register', data)
+  return post<{ access_token: string; token_type: string }>('/api/auth/register', data)
 }
 
 export function login(data: LoginParams) {
-  return post<LoginResult>('/auth/login', data)
+  return post<LoginResult>('/api/auth/login', data)
 }
 
 export function getMe() {
-  return get<UserInfo>('/auth/me')
+  return get<UserInfo>('/api/auth/me')
 }
 
 // 初始化账号（需要 token）
@@ -59,7 +59,7 @@ export function initAccount(data: {
   email?: string
   avatar_url?: string
 }) {
-  return post<{ detail: string }>('/auth/init', data)
+  return post<{ detail: string }>('/api/auth/init', data)
 }
 
 // 分配角色（需要 token）
@@ -68,7 +68,7 @@ export function assignRole(data: {
   role_id: number
   club_id?: number | null
 }) {
-  return post<{ detail: string; user_role: { id: number; user_id: number; role_id: number; club_id: number | null } }>('/auth/assign-role', data)
+  return post<{ detail: string; user_role: { id: number; user_id: number; role_id: number; club_id: number | null } }>('/api/auth/assign-role', data)
 }
 
 // 社团管理员创建社团（需要 token）
@@ -76,5 +76,5 @@ export function initClub(data: {
   club_name: string
   school_code: string
 }) {
-  return post<{ detail: string; club_id: number; is_new: boolean }>('/clubs/init', data)
+  return post<{ detail: string; club_id: number; is_new: boolean }>('/api/clubs/init', data)
 }

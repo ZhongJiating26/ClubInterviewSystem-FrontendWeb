@@ -20,11 +20,6 @@ request.interceptors.request.use(
       config.headers.Authorization = `Bearer ${userStore.token}`
     }
 
-    // /admin/ 和 /student/ 路径与前端路由冲突，直接访问后端，绕过 Vite 代理
-    if (config.url?.startsWith('/admin/') || config.url?.startsWith('/student/')) {
-      config.baseURL = 'http://localhost:8000'
-    }
-
     return config
   },
   (error: AxiosError) => {
