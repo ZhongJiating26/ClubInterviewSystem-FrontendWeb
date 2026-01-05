@@ -12,6 +12,9 @@ const request = axios.create({
 // 需要统一响应格式的接口路径（这些接口返回 { code, data, message }）
 const NEED_WRAPPED_PATHS = ['/api/student', '/api/admin', '/api/interviewer']
 
+// 不需要统一响应格式的接口路径（直接返回数据）
+const DIRECT_RETURN_PATHS = ['/api/admin/signup/applications', '/api/admin/dashboard']
+
 // 请求拦截器
 request.interceptors.request.use(
   (config) => {
@@ -33,6 +36,12 @@ request.interceptors.response.use(
     const { data, config } = response
     const url = (config.url || '')
 
+    // 判断是否直接返回数据（不需要统一格式处理）
+    const isDirectReturn = DIRECT_RETURN_PATHS.some(path => url.startsWith(path))
+    if (isDirectReturn) {
+      return data
+    }
+
     // 判断是否需要统一响应格式处理
     const needsWrapped = NEED_WRAPPED_PATHS.some(path => url.startsWith(path))
 
@@ -46,6 +55,7 @@ request.interceptors.response.use(
       if (data.code === 200 || data.success) {
         return data.data || data
       }
+      console.error('API 响应格式错误，完整响应:', data)
       return Promise.reject(new Error(data.message || '请求失败'))
     }
 

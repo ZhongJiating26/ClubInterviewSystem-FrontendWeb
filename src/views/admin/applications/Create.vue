@@ -8,7 +8,7 @@ import {
 } from '@/api/modules/recruitment'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Calendar, Users, FileText, Plus, ArrowRight } from 'lucide-vue-next'
+import { Calendar, Users, AlignLeft, Plus, ArrowRight } from 'lucide-vue-next'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -135,15 +135,15 @@ onMounted(() => {
         </CardHeader>
         <CardContent class="space-y-3">
           <div class="flex items-center gap-2 text-sm text-muted-foreground">
-            <Calendar class="w-4 h-4" />
+            <Calendar class="w-4 h-4 flex-shrink-0" />
             <span>{{ formatDate(session.start_time) }} - {{ formatDate(session.end_time) }}</span>
           </div>
           <div class="flex items-center gap-2 text-sm text-muted-foreground">
-            <Users class="w-4 h-4" />
+            <Users class="w-4 h-4 flex-shrink-0" />
             <span>上限 {{ session.max_candidates }} 人</span>
           </div>
-          <div v-if="session.description" class="flex items-start gap-2 text-sm">
-            <FileText class="w-4 h-4 mt-0.5" />
+          <div v-if="session.description" class="flex items-center gap-2 text-sm text-muted-foreground">
+            <AlignLeft class="w-4 h-4 flex-shrink-0" />
             <span class="line-clamp-2">{{ session.description }}</span>
           </div>
           <div class="pt-2 flex gap-2">

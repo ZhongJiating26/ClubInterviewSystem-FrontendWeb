@@ -244,8 +244,8 @@ onMounted(() => {
               <Calendar class="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div class="text-2xl font-bold">{{ stats.active_sessions }}</div>
-              <p class="text-xs text-muted-foreground mt-1">共 {{ stats.total_sessions }} 个场次</p>
+              <div class="text-2xl font-bold">{{ stats.active_sessions ?? 0 }}</div>
+              <p class="text-xs text-muted-foreground mt-1">共 {{ stats.total_sessions ?? 0 }} 个场次</p>
             </CardContent>
           </Card>
 
@@ -257,7 +257,7 @@ onMounted(() => {
             </CardHeader>
             <CardContent>
               <div class="flex items-center justify-between">
-                <div class="text-2xl font-bold">{{ stats.total_applications }}</div>
+                <div class="text-2xl font-bold">{{ stats.total_applications ?? 0 }}</div>
                 <div v-if="stats.application_growth !== undefined" class="flex items-center gap-1">
                   <component :is="getTrendIcon(stats.application_growth)" class="w-4 h-4" :class="getTrendColor(stats.application_growth)" />
                   <span class="text-sm font-medium" :class="getTrendColor(stats.application_growth)">
@@ -276,7 +276,7 @@ onMounted(() => {
               <FileText class="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div class="text-2xl font-bold text-orange-600">{{ stats.pending_review }}</div>
+              <div class="text-2xl font-bold text-orange-600">{{ stats.pending_review ?? 0 }}</div>
               <p class="text-xs text-muted-foreground mt-1">点击前往审核</p>
             </CardContent>
           </Card>
@@ -289,9 +289,9 @@ onMounted(() => {
             </CardHeader>
             <CardContent>
               <div class="flex items-center justify-between">
-                <div class="text-2xl font-bold">{{ stats.admitted_count }}</div>
+                <div class="text-2xl font-bold">{{ stats.admitted_count ?? 0 }}</div>
                 <Badge :class="getTrendBgColor(stats.admission_rate)" class="text-sm text-green-700">
-                  {{ stats.admission_rate }}% 录取率
+                  {{ stats.admission_rate ?? 0 }}% 录取率
                 </Badge>
               </div>
               <p class="text-xs text-muted-foreground mt-1">录取率统计</p>
@@ -309,13 +309,13 @@ onMounted(() => {
             <CardContent>
               <div class="h-64 flex items-end gap-2">
                 <div
-                  v-for="item in stats.daily_applications"
+                  v-for="item in (stats.daily_applications || [])"
                   :key="item.date"
                   class="flex-1 flex flex-col items-center gap-2"
                 >
                   <div
                     class="w-full bg-gray-400 rounded-t-md transition-all hover:bg-gray-500"
-                    :style="{ height: `${(item.count / Math.max(...stats.daily_applications.map(d => d.count))) * 200}px` }"
+                    :style="{ height: `${(item.count / Math.max(...(stats.daily_applications || []).map(d => d.count))) * 200}px` }"
                   ></div>
                   <span class="text-xs text-muted-foreground">{{ formatDate(item.date) }}</span>
                   <span class="text-sm font-medium">{{ item.count }}</span>
@@ -333,12 +333,12 @@ onMounted(() => {
               <div class="space-y-2">
                 <div class="flex items-center justify-between">
                   <span class="text-sm text-muted-foreground">面试完成率</span>
-                  <span class="text-sm font-semibold">{{ stats.interview_completion_rate }}%</span>
+                  <span class="text-sm font-semibold">{{ stats.interview_completion_rate ?? 0 }}%</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2">
                   <div
                     class="bg-blue-600 h-2 rounded-full transition-all"
-                    :style="{ width: `${stats.interview_completion_rate}%` }"
+                    :style="{ width: `${stats.interview_completion_rate ?? 0}%` }"
                   ></div>
                 </div>
               </div>
@@ -346,12 +346,12 @@ onMounted(() => {
               <div class="space-y-2">
                 <div class="flex items-center justify-between">
                   <span class="text-sm text-muted-foreground">录取率</span>
-                  <span class="text-sm font-semibold">{{ stats.admission_rate }}%</span>
+                  <span class="text-sm font-semibold">{{ stats.admission_rate ?? 0 }}%</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2">
                   <div
                     class="bg-green-600 h-2 rounded-full transition-all"
-                    :style="{ width: `${stats.admission_rate}%` }"
+                    :style="{ width: `${stats.admission_rate ?? 0}%` }"
                   ></div>
                 </div>
               </div>
@@ -359,15 +359,15 @@ onMounted(() => {
               <div class="pt-4 space-y-3">
                 <div class="flex items-center justify-between text-sm">
                   <span class="text-muted-foreground">总面试数</span>
-                  <span class="font-medium">{{ stats.total_interviews }}</span>
+                  <span class="font-medium">{{ stats.total_interviews ?? 0 }}</span>
                 </div>
                 <div class="flex items-center justify-between text-sm">
                   <span class="text-muted-foreground">已完成</span>
-                  <span class="font-medium text-green-600">{{ stats.completed_interviews }}</span>
+                  <span class="font-medium text-green-600">{{ stats.completed_interviews ?? 0 }}</span>
                 </div>
                 <div class="flex items-center justify-between text-sm">
                   <span class="text-muted-foreground">待面试</span>
-                  <span class="font-medium text-orange-600">{{ stats.total_interviews - stats.completed_interviews }}</span>
+                  <span class="font-medium text-orange-600">{{ (stats.total_interviews ?? 0) - (stats.completed_interviews ?? 0) }}</span>
                 </div>
               </div>
             </CardContent>
@@ -382,7 +382,7 @@ onMounted(() => {
           <CardContent>
             <div class="space-y-4">
               <div
-                v-for="dept in stats.department_stats"
+                v-for="dept in (stats.department_stats || [])"
                 :key="dept.department_name"
                 class="flex items-center justify-between"
               >
@@ -394,7 +394,7 @@ onMounted(() => {
                   <div class="w-full bg-gray-200 rounded-full h-2">
                     <div
                       class="bg-primary h-2 rounded-full transition-all"
-                      :style="{ width: `${(dept.application_count / Math.max(...stats.department_stats.map(d => d.application_count))) * 100}%` }"
+                      :style="{ width: `${(dept.application_count / Math.max(...(stats.department_stats || []).map(d => d.application_count))) * 100}%` }"
                     ></div>
                   </div>
                 </div>
@@ -415,7 +415,7 @@ onMounted(() => {
           <CardContent>
             <div class="space-y-3">
               <div
-                v-for="(position, index) in stats.position_stats.slice(0, 5)"
+                v-for="(position, index) in (stats.position_stats || []).slice(0, 5)"
                 :key="position.position_name"
                 class="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors"
               >
