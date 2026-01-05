@@ -94,7 +94,7 @@ const handleClubClick = (clubId: number) => {
       <Card
         v-for="club in clubs"
         :key="club.id"
-        class="overflow-hidden hover:shadow-md transition-shadow !py-0 cursor-pointer"
+        class="overflow-hidden !py-0 cursor-pointer shadow-none"
         @click="handleClubClick(club.id)"
       >
         <CardContent class="p-3">

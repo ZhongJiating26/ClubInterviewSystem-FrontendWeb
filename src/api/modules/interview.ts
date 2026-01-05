@@ -32,6 +32,7 @@ export interface CreateInterviewSessionData {
   start_time: string
   end_time: string
   place?: string
+  status?: InterviewSessionStatus // 添加状态字段
 }
 
 // 更新面试场次请求
@@ -54,9 +55,19 @@ export interface Interviewer {
   email?: string
 }
 
-// 分配面试官请求
-export interface AssignInterviewersData {
-  interviewer_ids: number[]
+// 可分配的面试官（包含社团的面试官和管理员）
+export interface AssignableInterviewer {
+  id: number
+  user_id: number
+  name: string
+  phone?: string
+  email?: string
+  role: 'CLUB_ADMIN' | 'INTERVIEWER' // 角色：社团管理员或面试官
+}
+
+// 分配单个面试官请求
+export interface AssignInterviewerData {
+  interviewer_id: number
 }
 
 // 面试候选人排期
@@ -207,8 +218,13 @@ export function deleteInterviewSession(id: number) {
 
 // ==================== 面试官分配 ====================
 
-// 为场次分配面试官
-export function assignInterviewers(sessionId: number, data: AssignInterviewersData) {
+// 获取社团可分配的面试官列表（包含社团的面试官和管理员）
+export function getAssignableInterviewers(clubId: number) {
+  return get<AssignableInterviewer[]>(`/api/interview/clubs/${clubId}/assignable-interviewers`)
+}
+
+// 为场次分配单个面试官
+export function assignInterviewer(sessionId: number, data: AssignInterviewerData) {
   return post(`/api/interview/sessions/${sessionId}/interviewers`, data)
 }
 
@@ -346,4 +362,21 @@ export function confirmInterview(interviewId: number, data: {
   status: 'CONFIRMED' | 'REJECTED'
 }) {
   return put(`/api/interviews/${interviewId}/confirmation`, data)
+}
+
+// ==================== 学生端 ====================
+
+// 获取学生的面试记录列表
+export function getMyInterviewRecords(params?: {
+  status?: InterviewCandidate['status']
+  session_id?: number
+}) {
+  return get<InterviewCandidate[]>('/api/student/interviews', params)
+}
+
+// 获取学生的面试记录详情
+export function getMyInterviewRecordDetail(candidateId: number) {
+  return get<InterviewCandidate & { session?: InterviewSession; application?: SignupApplication }>(
+    `/api/student/interviews/${candidateId}`
+  )
 }

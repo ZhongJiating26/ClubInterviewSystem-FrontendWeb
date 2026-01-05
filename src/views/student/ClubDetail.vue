@@ -90,7 +90,7 @@ onMounted(() => {
 <template>
   <div class="min-h-screen flex flex-col" style="background-color: #F8F8F8">
     <!-- 自定义顶部导航栏 -->
-    <div class="sticky top-0 z-30 bg-white shadow-sm">
+    <div class="sticky top-0 z-30 bg-white border-b border-gray-100">
       <div class="flex items-center justify-between px-4 py-3">
         <Button variant="ghost" size="icon" class="h-8 w-8" @click="goBack">
           <ArrowLeft class="h-5 w-5" />
@@ -197,7 +197,7 @@ onMounted(() => {
     </div>
 
     <!-- 底部固定按钮 -->
-    <div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t shadow-lg">
+    <div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100">
       <Button
         v-if="hasActiveRecruitment"
         class="w-full bg-gray-900 hover:bg-gray-800 text-white"

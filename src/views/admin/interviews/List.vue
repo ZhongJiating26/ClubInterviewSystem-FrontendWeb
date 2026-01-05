@@ -1,15 +1,24 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import {
   getInterviewSessions,
+  deleteInterviewSession,
   type InterviewSession,
 } from '@/api/modules/interview'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Calendar, MapPin, Users, Plus, ArrowRight } from 'lucide-vue-next'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Calendar, MapPin, Users, Plus, ArrowRight, Trash2, AlertTriangle } from 'lucide-vue-next'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -18,6 +27,11 @@ const userStore = useUserStore()
 const sessions = ref<InterviewSession[]>([])
 const loading = ref(false)
 const error = ref('')
+
+// 删除确认弹窗
+const showDeleteDialog = ref(false)
+const selectedSession = ref<InterviewSession | null>(null)
+const deleteLoading = ref(false)
 
 // 获取社团 ID
 const getClubId = () => {
@@ -34,6 +48,7 @@ const fetchSessions = async () => {
 
   try {
     loading.value = true
+    error.value = ''
     const res = await getInterviewSessions({ club_id: clubId })
     sessions.value = res
   } catch (err: any) {
@@ -53,7 +68,50 @@ const goToEdit = (sessionId: number) => {
   router.push(`/admin/interviews/wizard?id=${sessionId}`)
 }
 
-// 状态文本
+// 打开删除确认弹窗
+const openDeleteDialog = (session: InterviewSession, event: Event) => {
+  event.stopPropagation() // 阻止触发卡片点击
+  selectedSession.value = session
+  showDeleteDialog.value = true
+}
+
+// 删除面试场次
+const handleDelete = async () => {
+  if (!selectedSession.value) return
+
+  try {
+    deleteLoading.value = true
+    await deleteInterviewSession(selectedSession.value.id)
+    showDeleteDialog.value = false
+    // 刷新列表
+    await fetchSessions()
+  } catch (err: any) {
+    error.value = err.message || '删除失败'
+  } finally {
+    deleteLoading.value = false
+  }
+}
+
+// 获取动态状态（基于时间和 status）
+const getDynamicStatus = (session: InterviewSession) => {
+  if (session.status === 'DRAFT') {
+    return { text: '草稿', variant: 'outline' as const }
+  }
+
+  const now = new Date()
+  const startTime = new Date(session.start_time)
+  const endTime = new Date(session.end_time)
+
+  if (now < startTime) {
+    return { text: '未到时间', variant: 'outline' as const }
+  } else if (now >= startTime && now <= endTime) {
+    return { text: '进行中', variant: 'default' as const }
+  } else {
+    return { text: '已截止', variant: 'secondary' as const }
+  }
+}
+
+// 状态文本（保留用于兼容）
 const getStatusText = (status: string) => {
   const statusMap: Record<string, string> = {
     DRAFT: '草稿',
@@ -63,17 +121,17 @@ const getStatusText = (status: string) => {
   return statusMap[status] || status
 }
 
-// 状态样式
-const getStatusClass = (status: string) => {
+// 状态样式（保留用于兼容）
+const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
   switch (status) {
     case 'OPEN':
-      return 'bg-green-100 text-green-800'
+      return 'default'
     case 'CLOSED':
-      return 'bg-gray-100 text-gray-800'
+      return 'secondary'
     case 'DRAFT':
-      return 'bg-yellow-100 text-yellow-800'
+      return 'outline'
     default:
-      return 'bg-gray-100 text-gray-800'
+      return 'outline'
   }
 }
 
@@ -81,6 +139,11 @@ const getStatusClass = (status: string) => {
 const formatDate = (dateStr: string) => {
   if (!dateStr) return '-'
   return new Date(dateStr).toLocaleString('zh-CN')
+}
+
+// 所有场次都可以删除
+const canDelete = (session: InterviewSession) => {
+  return true
 }
 
 onMounted(() => {
@@ -114,9 +177,20 @@ onMounted(() => {
         >
           <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle class="text-lg">{{ session.name }}</CardTitle>
-            <span :class="['px-2 py-1 text-xs rounded-full', getStatusClass(session.status)]">
-              {{ getStatusText(session.status) }}
-            </span>
+            <div class="flex items-center gap-2">
+              <Badge :variant="getDynamicStatus(session).variant">
+                {{ getDynamicStatus(session).text }}
+              </Badge>
+              <!-- 删除按钮（所有状态都显示） -->
+              <Button
+                variant="ghost"
+                size="icon"
+                class="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                @click="openDeleteDialog(session, $event)"
+              >
+                <Trash2 class="w-4 h-4" />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent class="space-y-3">
             <div class="flex items-center gap-2 text-sm text-muted-foreground">
@@ -140,7 +214,7 @@ onMounted(() => {
               {{ session.description }}
             </div>
             <div class="pt-2">
-              <Button variant="outline" size="sm" class="w-full">
+              <Button variant="outline" size="sm" class="w-full" @click="goToEdit(session.id)">
                 <ArrowRight class="w-3 h-3 mr-1" />
                 管理
               </Button>
@@ -167,5 +241,55 @@ onMounted(() => {
         </div>
       </div>
     </div>
+
+    <!-- 删除确认弹窗 -->
+    <Dialog :open="showDeleteDialog" @update:open="showDeleteDialog = $event">
+      <DialogContent class="max-w-md">
+        <DialogHeader>
+          <DialogTitle class="flex items-center gap-2">
+            <AlertTriangle class="w-5 h-5 text-red-500" />
+            删除面试场次
+          </DialogTitle>
+          <DialogDescription>
+            确定要删除面试场次「{{ selectedSession?.name }}」吗？此操作不可恢复。
+          </DialogDescription>
+        </DialogHeader>
+
+        <div class="py-4">
+          <div class="bg-muted rounded-md p-4 space-y-2 text-sm">
+            <div class="flex justify-between">
+              <span class="text-muted-foreground">场次名称</span>
+              <span class="font-medium">{{ selectedSession?.name }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-muted-foreground">状态</span>
+              <Badge v-if="selectedSession" :variant="getDynamicStatus(selectedSession).variant">
+                {{ selectedSession && getDynamicStatus(selectedSession).text }}
+              </Badge>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-muted-foreground">面试时间</span>
+              <span class="font-medium">{{ selectedSession && formatDate(selectedSession.start_time) }}</span>
+            </div>
+          </div>
+          <p class="text-sm text-muted-foreground mt-4">
+            注意：删除后，该场次的所有关联数据（面试官分配、候选人排期等）都将被删除。
+          </p>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" @click="showDeleteDialog = false" :disabled="deleteLoading">
+            取消
+          </Button>
+          <Button
+            variant="destructive"
+            @click="handleDelete"
+            :disabled="deleteLoading"
+          >
+            {{ deleteLoading ? '删除中...' : '确认删除' }}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>

@@ -59,38 +59,38 @@ const routes: RouteRecordRaw[] = [
         path: 'dashboard',
         name: 'Dashboard',
         component: () => import('@/views/admin/Dashboard.vue'),
-        meta: { title: '仪表盘' }
+        meta: { title: '仪表盘', roles: ['admin'] }
       },
       {
         path: 'applications',
         name: 'Applications',
         component: () => import('@/views/admin/Applications.vue'),
-        meta: { title: '报名管理' },
+        meta: { title: '报名管理', roles: ['admin'] },
         redirect: { name: 'ApplicationsCreate' },
         children: [
           {
             path: 'create',
             name: 'ApplicationsCreate',
             component: () => import('@/views/admin/applications/Create.vue'),
-            meta: { title: '发布报名' }
+            meta: { title: '发布报名', roles: ['admin'] }
           },
           {
             path: 'session/:id',
             name: 'SessionWizard',
             component: () => import('@/views/admin/applications/SessionWizard.vue'),
-            meta: { title: '招新场次向导' }
+            meta: { title: '招新场次向导', roles: ['admin'] }
           },
           {
             path: 'history',
             name: 'ApplicationsHistory',
             component: () => import('@/views/admin/applications/History.vue'),
-            meta: { title: '历史报名记录' }
+            meta: { title: '历史报名记录', roles: ['admin'] }
           },
           {
             path: 'review',
             name: 'ApplicationsReview',
             component: () => import('@/views/admin/applications/Review.vue'),
-            meta: { title: '报名审核' }
+            meta: { title: '报名审核', roles: ['admin'] }
           }
         ]
       },
@@ -98,32 +98,32 @@ const routes: RouteRecordRaw[] = [
         path: 'interviews',
         name: 'Interviews',
         component: () => import('@/views/admin/Interviews.vue'),
-        meta: { title: '面试管理' },
+        meta: { title: '面试管理', roles: ['admin'] },
         redirect: { name: 'InterviewsList' },
         children: [
           {
             path: 'list',
             name: 'InterviewsList',
             component: () => import('@/views/admin/interviews/List.vue'),
-            meta: { title: '面试场次' }
+            meta: { title: '面试场次', roles: ['admin'] }
           },
           {
             path: 'wizard',
             name: 'InterviewsWizard',
             component: () => import('@/views/admin/interviews/Wizard.vue'),
-            meta: { title: '发布面试' }
+            meta: { title: '发布面试', roles: ['admin'] }
           },
           {
             path: 'records',
             name: 'InterviewsRecords',
             component: () => import('@/views/admin/interviews/Records.vue'),
-            meta: { title: '面试记录' }
+            meta: { title: '面试记录', roles: ['admin'] }
           },
           {
             path: 'filter',
             name: 'InterviewsFilter',
             component: () => import('@/views/admin/interviews/Filter.vue'),
-            meta: { title: '面试筛选' }
+            meta: { title: '面试筛选', roles: ['admin'] }
           }
         ]
       },
@@ -131,42 +131,42 @@ const routes: RouteRecordRaw[] = [
         path: 'statistics',
         name: 'Statistics',
         component: () => import('@/views/admin/Statistics.vue'),
-        meta: { title: '数据统计' }
+        meta: { title: '数据统计', roles: ['admin'] }
       },
       {
         path: 'tickets',
         name: 'AdminTickets',
         component: () => import('@/views/admin/Tickets.vue'),
-        meta: { title: '工单管理' }
+        meta: { title: '工单管理', roles: ['admin'] }
       },
       {
         path: 'clubs',
         name: 'Clubs',
-        meta: { title: '社团管理' },
+        meta: { title: '社团管理', roles: ['admin'] },
         children: [
           {
             path: 'profile',
             name: 'ClubsProfile',
             component: () => import('@/views/admin/clubs/Profile.vue'),
-            meta: { title: '社团资料' }
+            meta: { title: '社团资料', roles: ['admin'] }
           },
           {
             path: 'departments',
             name: 'ClubsDepartments',
             component: () => import('@/views/admin/clubs/Departments.vue'),
-            meta: { title: '部门管理' }
+            meta: { title: '部门管理', roles: ['admin'] }
           },
           {
             path: 'positions',
             name: 'ClubsPositions',
             component: () => import('@/views/admin/clubs/Positions.vue'),
-            meta: { title: '岗位管理' }
+            meta: { title: '岗位管理', roles: ['admin'] }
           },
           {
             path: 'members',
             name: 'ClubsMembers',
             component: () => import('@/views/admin/clubs/Members.vue'),
-            meta: { title: '社团人员管理' }
+            meta: { title: '社团人员管理', roles: ['admin'] }
           }
         ]
       },
@@ -174,7 +174,7 @@ const routes: RouteRecordRaw[] = [
         path: 'settings',
         name: 'AdminSettings',
         component: () => import('@/views/admin/settings/Settings.vue'),
-        meta: { title: '系统设置' }
+        meta: { title: '系统设置', roles: ['admin'] }
       }
     ]
   },
@@ -183,18 +183,67 @@ const routes: RouteRecordRaw[] = [
     path: '/interviewer',
     component: InterviewerLayout,
     meta: { roles: ['interviewer'] },
+    redirect: { name: 'InterviewerJoin' },
     children: [
       {
-        path: 'tasks',
-        name: 'InterviewerTasks',
-        component: () => import('@/views/interviewer/Tasks.vue'),
-        meta: { title: '面试任务' }
+        path: 'join',
+        name: 'InterviewerJoin',
+        component: () => import('@/views/interviewer/Join.vue'),
+        meta: { title: '加入社团', roles: ['interviewer'] }
       },
       {
-        path: 'score/:id',
-        name: 'Score',
-        component: () => import('@/views/interviewer/Score.vue'),
-        meta: { title: '评分' }
+        path: 'applications',
+        name: 'InterviewerApplications',
+        component: () => import('@/views/interviewer/Applications.vue'),
+        meta: { title: '报名管理', roles: ['interviewer'] },
+        redirect: { name: 'InterviewerApplicationsSessions' },
+        children: [
+          {
+            path: 'sessions',
+            name: 'InterviewerApplicationsSessions',
+            component: () => import('@/views/interviewer/applications/Sessions.vue'),
+            meta: { title: '报名场次', roles: ['interviewer'] }
+          },
+          {
+            path: 'session/:id',
+            name: 'InterviewerApplicationSessionDetail',
+            component: () => import('@/views/interviewer/applications/SessionDetail.vue'),
+            meta: { title: '场次详情', roles: ['interviewer'] }
+          },
+          {
+            path: 'history',
+            name: 'InterviewerApplicationsHistory',
+            component: () => import('@/views/interviewer/applications/History.vue'),
+            meta: { title: '历史报名记录', roles: ['interviewer'] }
+          }
+        ]
+      },
+      {
+        path: 'interviews',
+        name: 'InterviewerInterviews',
+        component: () => import('@/views/interviewer/Interviews.vue'),
+        meta: { title: '面试管理', roles: ['interviewer'] },
+        redirect: { name: 'InterviewerInterviewsList' },
+        children: [
+          {
+            path: 'list',
+            name: 'InterviewerInterviewsList',
+            component: () => import('@/views/interviewer/interviews/List.vue'),
+            meta: { title: '面试场次', roles: ['interviewer'] }
+          },
+          {
+            path: 'records',
+            name: 'InterviewerInterviewsRecords',
+            component: () => import('@/views/interviewer/interviews/Records.vue'),
+            meta: { title: '面试记录', roles: ['interviewer'] }
+          },
+          {
+            path: 'filter',
+            name: 'InterviewerInterviewsFilter',
+            component: () => import('@/views/interviewer/interviews/Filter.vue'),
+            meta: { title: '面试筛选', roles: ['interviewer'] }
+          }
+        ]
       }
     ]
   },
@@ -208,31 +257,43 @@ const routes: RouteRecordRaw[] = [
         path: 'home',
         name: 'StudentHome',
         component: () => import('@/views/student/Home.vue'),
-        meta: { title: '首页' }
+        meta: { title: '首页', roles: ['student'] }
       },
       {
         path: 'club/:id',
         name: 'StudentClubDetail',
         component: () => import('@/views/student/ClubDetail.vue'),
-        meta: { title: '社团详情' }
+        meta: { title: '社团详情', roles: ['student'] }
       },
       {
         path: 'apply/:id',
         name: 'StudentApply',
         component: () => import('@/views/student/Apply.vue'),
-        meta: { title: '报名' }
+        meta: { title: '报名', roles: ['student'] }
       },
       {
         path: 'interviews',
         name: 'StudentInterviews',
         component: () => import('@/views/student/Interviews.vue'),
-        meta: { title: '面试' }
+        meta: { title: '面试', roles: ['student'] }
+      },
+      {
+        path: 'interviews/signup/:signupId',
+        name: 'StudentSignupDetail',
+        component: () => import('@/views/student/interviews/SignupDetail.vue'),
+        meta: { title: '报名详情', roles: ['student'] }
+      },
+      {
+        path: 'interviews/record/:candidateId',
+        name: 'StudentInterviewRecordDetail',
+        component: () => import('@/views/student/interviews/RecordDetail.vue'),
+        meta: { title: '面试详情', roles: ['student'] }
       },
       {
         path: 'profile',
         name: 'StudentProfile',
         component: () => import('@/views/student/Profile.vue'),
-        meta: { title: '我的' }
+        meta: { title: '我的', roles: ['student'] }
       }
     ]
   },
@@ -263,10 +324,27 @@ router.beforeEach(async (to, from, next) => {
   const isLoggedIn = !!userStore.token
 
   // 公开页面直接放行
-  if (publicPaths.some(path => to.path.startsWith(path))) {
+  if (publicPaths.includes(to.path)) {
     // 如果已登录访问登录页，跳转到首页
     if (isLoggedIn && to.path === '/login') {
-      next('/student/home')
+      // 确保有用户信息
+      if (!userStore.userInfo) {
+        try {
+          const { getMe } = await import('@/api/modules/auth')
+          const userData = await getMe()
+          userStore.setUserInfo(userData)
+        } catch {
+          next('/login')
+          return
+        }
+      }
+      const role = userStore.primaryRole || 'student'
+      const homeMap: Record<string, string> = {
+        admin: '/admin/dashboard',
+        interviewer: '/interviewer/join',
+        student: '/student/home'
+      }
+      next(homeMap[role] || '/student/home')
     } else {
       next()
     }
@@ -279,30 +357,61 @@ router.beforeEach(async (to, from, next) => {
     return
   }
 
-  // 如果没有用户信息，先获取
+  // 确保有用户信息
   if (!userStore.userInfo) {
     try {
       const { getMe } = await import('@/api/modules/auth')
       const userData = await getMe()
       userStore.setUserInfo(userData)
-    } catch (e) {
-      // 获取失败，清除 token 并跳转登录
+    } catch {
       userStore.logout()
       next('/login')
       return
     }
   }
 
-  // 根路径根据角色跳转
+  // 根路径跳转到首页
   if (to.path === '/') {
     const role = userStore.primaryRole || 'student'
-    const redirectMap: Record<string, string> = {
+    const homeMap: Record<string, string> = {
       admin: '/admin/dashboard',
-      interviewer: '/interviewer/tasks',
+      interviewer: '/interviewer/join',
       student: '/student/home'
     }
-    next(redirectMap[role] || '/student/home')
+    next(homeMap[role] || '/student/home')
     return
+  }
+
+  // 检查角色权限
+  const requiredRoles = to.meta.roles as string[] | undefined
+  if (requiredRoles && requiredRoles.length > 0) {
+    const userRoles = userStore.userInfo?.roles?.map(r => r.code.toUpperCase()) || []
+
+    // 检查是否有权限（需要匹配后端的角色代码）
+    const hasPermission = requiredRoles.some(requiredRole => {
+      const upperRequired = requiredRole.toUpperCase()
+      // 支持多种角色代码格式
+      return userRoles.some(userRole => {
+        // 后端返回 CLUB_ADMIN, INTERVIEWER, STUDENT
+        if (upperRequired === 'ADMIN') {
+          return userRole === 'CLUB_ADMIN' || userRole === 'ADMIN'
+        }
+        return userRole === upperRequired
+      })
+    })
+
+    if (!hasPermission) {
+      // 无权限，跳转到第一个有权限的页面
+      const userRolesLower = userStore.userInfo?.roles?.map(r => r.code.toLowerCase()) || []
+      if (userRolesLower.includes('club_admin') || userRolesLower.includes('admin')) {
+        next('/admin/dashboard')
+      } else if (userRolesLower.includes('interviewer')) {
+        next('/interviewer/join')
+      } else {
+        next('/student/home')
+      }
+      return
+    }
   }
 
   next()

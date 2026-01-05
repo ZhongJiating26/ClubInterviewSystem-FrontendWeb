@@ -9,6 +9,8 @@ export interface SignupItem {
   signup_session_id: number
   department_id: number | null
   position_id: number
+  department_name?: string
+  position_name?: string
 }
 
 // 报名信息
@@ -96,4 +98,16 @@ export function auditSignupApplication(id: number, data: AuditSignupData) {
     `/api/admin/signup/applications/${id}/audit`,
     data
   )
+}
+
+// ==================== 报名查看（面试官） ====================
+
+// 获取报名列表（面试官）
+export function getInterviewerSignupApplications(params: SignupListParams) {
+  return get<SignupListResponse>('/api/interviewer/signup/applications', params)
+}
+
+// 获取报名详情（面试官）
+export function getInterviewerSignupApplicationDetail(id: number) {
+  return get<SignupApplication>(`/api/interviewer/signup/applications/${id}`)
 }

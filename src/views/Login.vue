@@ -33,7 +33,7 @@ const handleLogin = async () => {
       const role = userStore.primaryRole || 'student'
       const redirectMap: Record<string, string> = {
         admin: '/admin/dashboard',
-        interviewer: '/interviewer/tasks',
+        interviewer: '/interviewer/join',
         student: '/student/home'
       }
       router.push(redirectMap[role] || '/student/home')

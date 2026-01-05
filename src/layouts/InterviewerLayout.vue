@@ -1,57 +1,98 @@
 <script setup lang="ts">
-import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
-import { ClipboardList, LogOut } from 'lucide-vue-next'
+import { RouterView, useRoute } from 'vue-router'
+import {
+  Command,
+  Building2,
+  History,
+  Calendar,
+  List,
+  ClipboardList,
+  Filter,
+} from 'lucide-vue-next'
 import { useUserStore } from '@/stores/user'
+import AppSidebar from '@/components/AppSidebar.vue'
+import NavUserCustom from '@/components/NavUserCustom.vue'
+import NavGroup from '@/components/NavGroup.vue'
+import {
+  SidebarInset,
+  SidebarProvider,
+} from '@/components/ui/sidebar'
 
-const route = useRoute()
-const router = useRouter()
 const userStore = useUserStore()
+const route = useRoute()
 
-const menuItems = [
-  { path: '/interviewer/tasks', name: '面试任务', icon: ClipboardList }
-]
-
-const handleLogout = () => {
-  userStore.logout()
+const data = {
+  user: {
+    name: userStore.userInfo?.name || '用户',
+    email: userStore.userInfo?.phone || '',
+    avatar: '',
+  },
+  navMain: [
+    {
+      title: '加入社团',
+      url: '/interviewer/join',
+      icon: Building2,
+    },
+  ],
+  navApplications: [
+    {
+      title: '报名场次',
+      url: '/interviewer/applications/sessions',
+      icon: Calendar,
+    },
+    {
+      title: '历史报名记录',
+      url: '/interviewer/applications/history',
+      icon: History,
+    },
+  ],
+  navInterviews: [
+    {
+      title: '面试场次',
+      url: '/interviewer/interviews/list',
+      icon: List,
+    },
+    {
+      title: '面试记录',
+      url: '/interviewer/interviews/records',
+      icon: ClipboardList,
+    },
+    {
+      title: '面试筛选',
+      url: '/interviewer/interviews/filter',
+      icon: Filter,
+    },
+  ],
 }
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-100 flex">
-    <!-- 侧边栏 -->
-    <aside class="w-64 bg-white border-r flex flex-col">
-      <div class="p-6 border-b">
-        <h1 class="text-xl font-bold">社团面试系统</h1>
-        <p class="text-sm text-gray-500 mt-1">面试官端</p>
-      </div>
+  <SidebarProvider class="h-screen">
+    <AppSidebar variant="inset">
+      <template #header>
+        <div class="flex items-center gap-2 px-2">
+          <div class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+            <Command class="size-4" />
+          </div>
+          <div class="grid flex-1 text-left text-sm leading-tight">
+            <span class="truncate font-medium">社团面试系统</span>
+            <span class="truncate text-xs">面试官端</span>
+          </div>
+        </div>
+      </template>
+      <template #content>
+        <NavGroup :items="data.navMain" />
+        <NavGroup title="报名管理" :items="data.navApplications" />
+        <NavGroup title="面试管理" :items="data.navInterviews" />
+      </template>
+      <template #footer>
+        <NavUserCustom :user="data.user" />
+      </template>
+    </AppSidebar>
 
-      <nav class="flex-1 p-4 space-y-1">
-        <RouterLink
-          v-for="item in menuItems"
-          :key="item.path"
-          :to="item.path"
-          class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
-          :class="{ 'bg-primary text-white hover:bg-primary/90': route.path === item.path }"
-        >
-          <component :is="item.icon" class="w-5 h-5" />
-          {{ item.name }}
-        </RouterLink>
-      </nav>
-
-      <div class="p-4 border-t">
-        <button
-          @click="handleLogout"
-          class="flex items-center gap-3 w-full px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-        >
-          <LogOut class="w-5 h-5" />
-          退出登录
-        </button>
-      </div>
-    </aside>
-
-    <!-- 主内容区 -->
-    <main class="flex-1 p-8 overflow-auto">
-      <RouterView />
-    </main>
-  </div>
+    <SidebarInset>
+      <!-- 主内容区 -->
+      <RouterView :key="route.fullPath" />
+    </SidebarInset>
+  </SidebarProvider>
 </template>

@@ -7,10 +7,11 @@ import {
   updateInterviewSession,
   deleteInterviewSession,
   getInterviewSession,
-  assignInterviewers,
-  setScoreTemplate,
+  assignInterviewer,
+  getAssignableInterviewers,
   type InterviewSession,
   type CreateInterviewSessionData,
+  type AssignableInterviewer,
 } from '@/api/modules/interview'
 import { getRecruitmentSessions } from '@/api/modules/recruitment'
 import { Button } from '@/components/ui/button'
@@ -74,8 +75,9 @@ const formData = ref({
 })
 
 // 面试官列表
-const interviewers = ref<any[]>([])
+const interviewers = ref<AssignableInterviewer[]>([])
 const selectedInterviewerIds = ref<number[]>([])
+const interviewersLoading = ref(false)
 
 // 评分模板
 const useCustomTemplate = ref(false)
@@ -102,21 +104,20 @@ const fetchRecruitmentSessions = async () => {
   }
 }
 
-// 获取面试官列表
+// 获取可分配的面试官列表
 const fetchInterviewers = async () => {
   const clubId = getClubId()
   if (!clubId) return
 
   try {
-    // TODO: 调用后端接口获取面试官列表
-    // 临时模拟数据
-    interviewers.value = [
-      { id: 1, name: '张三', phone: '13800138001' },
-      { id: 2, name: '李四', phone: '13800138002' },
-      { id: 3, name: '王五', phone: '13800138003' },
-    ]
-  } catch (err) {
+    interviewersLoading.value = true
+    const res = await getAssignableInterviewers(clubId)
+    interviewers.value = res
+  } catch (err: any) {
     console.error('获取面试官列表失败', err)
+    error.value = err.message || '获取面试官列表失败'
+  } finally {
+    interviewersLoading.value = false
   }
 }
 
@@ -209,6 +210,7 @@ const handleCreate = async (status: 'DRAFT' | 'OPEN' = 'OPEN') => {
     start_time: formatTime(formData.value.start_time),
     end_time: formatTime(formData.value.end_time),
     place: formData.value.place.trim(),
+    status: status, // 设置状态：DRAFT 或 OPEN
   }
 
   if (formData.value.description.trim()) {
@@ -221,10 +223,12 @@ const handleCreate = async (status: 'DRAFT' | 'OPEN' = 'OPEN') => {
 
     const session = await createInterviewSession(clubId, data)
 
-    // TODO: 分配面试官
-    // if (selectedInterviewerIds.value.length > 0) {
-    //   await assignInterviewers(session.id, { interviewer_ids: selectedInterviewerIds.value })
-    // }
+    // 分配面试官（循环调用，每次分配一个）
+    if (selectedInterviewerIds.value.length > 0) {
+      for (const interviewerId of selectedInterviewerIds.value) {
+        await assignInterviewer(session.id, { interviewer_id: interviewerId })
+      }
+    }
 
     success.value = status === 'OPEN' ? '发布成功' : '草稿已保存'
     setTimeout(() => {
@@ -493,7 +497,10 @@ onMounted(async () => {
             </div>
 
             <!-- 面试官列表 -->
-            <div class="space-y-2">
+            <div v-if="interviewersLoading" class="text-center py-8 text-muted-foreground">
+              加载中...
+            </div>
+            <div v-else-if="interviewers.length > 0" class="space-y-2">
               <div
                 v-for="interviewer in interviewers"
                 :key="interviewer.id"
@@ -508,8 +515,14 @@ onMounted(async () => {
                 <div class="flex items-center gap-3">
                   <UserCheck class="w-5 h-5 text-muted-foreground" />
                   <div>
-                    <div class="font-medium">{{ interviewer.name }}</div>
-                    <div class="text-sm text-muted-foreground">{{ interviewer.phone }}</div>
+                    <div class="flex items-center gap-2">
+                      <span class="font-medium">{{ interviewer.name }}</span>
+                      <span class="text-xs px-2 py-0.5 rounded-full"
+                        :class="interviewer.role === 'CLUB_ADMIN' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'">
+                        {{ interviewer.role === 'CLUB_ADMIN' ? '管理员' : '面试官' }}
+                      </span>
+                    </div>
+                    <div class="text-sm text-muted-foreground">{{ interviewer.phone || '未设置手机号' }}</div>
                   </div>
                 </div>
                 <div class="w-5 h-5 rounded border flex items-center justify-center"
@@ -518,6 +531,9 @@ onMounted(async () => {
                   <Check v-if="selectedInterviewerIds.includes(interviewer.id)" class="w-3 h-3 text-primary-foreground" />
                 </div>
               </div>
+            </div>
+            <div v-else class="text-center py-8 text-muted-foreground">
+              暂无可分配的面试官
             </div>
 
             <!-- 已选择的面试官 -->
@@ -803,7 +819,10 @@ onMounted(async () => {
           </div>
 
           <!-- 面试官列表 -->
-          <div class="space-y-2">
+          <div v-if="interviewersLoading" class="text-center py-8 text-muted-foreground">
+            加载中...
+          </div>
+          <div v-else-if="interviewers.length > 0" class="space-y-2">
             <div
               v-for="interviewer in interviewers"
               :key="interviewer.id"
@@ -818,8 +837,14 @@ onMounted(async () => {
               <div class="flex items-center gap-3">
                 <UserCheck class="w-5 h-5 text-muted-foreground" />
                 <div>
-                  <div class="font-medium">{{ interviewer.name }}</div>
-                  <div class="text-sm text-muted-foreground">{{ interviewer.phone }}</div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-medium">{{ interviewer.name }}</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full"
+                      :class="interviewer.role === 'CLUB_ADMIN' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'">
+                      {{ interviewer.role === 'CLUB_ADMIN' ? '管理员' : '面试官' }}
+                    </span>
+                  </div>
+                  <div class="text-sm text-muted-foreground">{{ interviewer.phone || '未设置手机号' }}</div>
                 </div>
               </div>
               <div class="w-5 h-5 rounded border flex items-center justify-center"
@@ -828,6 +853,9 @@ onMounted(async () => {
                 <Check v-if="selectedInterviewerIds.includes(interviewer.id)" class="w-3 h-3 text-primary-foreground" />
               </div>
             </div>
+          </div>
+          <div v-else class="text-center py-8 text-muted-foreground">
+            暂无可分配的面试官
           </div>
 
           <!-- 已选择的面试官 -->

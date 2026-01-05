@@ -10,7 +10,7 @@ const request = axios.create({
 })
 
 // 需要统一响应格式的接口路径（这些接口返回 { code, data, message }）
-const NEED_WRAPPED_PATHS = ['/student']
+const NEED_WRAPPED_PATHS = ['/api/student']
 
 // 请求拦截器
 request.interceptors.request.use(
@@ -37,6 +37,11 @@ request.interceptors.response.use(
     const needsWrapped = NEED_WRAPPED_PATHS.some(path => url.startsWith(path))
 
     if (needsWrapped) {
+      console.log('响应数据:', { url, data })
+      // 如果返回的是数组，直接返回（兼容某些接口直接返回数组）
+      if (Array.isArray(data)) {
+        return data
+      }
       // 统一响应格式: { code: 200, data: xxx, message: "" }
       if (data.code === 200 || data.success) {
         return data.data || data

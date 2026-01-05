@@ -1,7 +1,35 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
-import { Home, ArrowLeft } from 'lucide-vue-next'
+import { Home } from 'lucide-vue-next'
+import { useUserStore } from '@/stores/user'
+
+const router = useRouter()
+const userStore = useUserStore()
+
+// 返回首页
+const goHome = () => {
+  // 未登录，跳转到登录页
+  if (!userStore.token) {
+    router.push('/login')
+    return
+  }
+
+  // 获取用户角色
+  const role = userStore.primaryRole
+
+  // 根据角色跳转到对应首页
+  if (role === 'interviewer') {
+    router.push('/interviewer/join')
+  } else if (role === 'student') {
+    router.push('/student/home')
+  } else if (role === 'admin') {
+    router.push('/admin/dashboard')
+  } else {
+    // 默认跳转到学生首页
+    router.push('/student/home')
+  }
+}
 </script>
 
 <template>
@@ -16,12 +44,10 @@ import { Home, ArrowLeft } from 'lucide-vue-next'
 
       <!-- 操作按钮 -->
       <div class="flex flex-col gap-3">
-        <RouterLink to="/">
-          <Button variant="outline" class="w-full">
-            <Home class="w-4 h-4 mr-2" />
-            返回首页
-          </Button>
-        </RouterLink>
+        <Button variant="outline" class="w-full" @click="goHome">
+          <Home class="w-4 h-4 mr-2" />
+          返回首页
+        </Button>
       </div>
     </div>
   </div>

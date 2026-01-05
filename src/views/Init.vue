@@ -218,7 +218,7 @@ const handleInit = async () => {
     if (role.value === 'student') {
       router.push('/student/home')
     } else if (role.value === 'interviewer') {
-      router.push('/interviewer/tasks')
+      router.push('/interviewer/join')
     } else {
       router.push('/admin/dashboard')
     }
