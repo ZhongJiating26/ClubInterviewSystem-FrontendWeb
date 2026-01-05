@@ -214,15 +214,24 @@ const handleInit = async () => {
       })
     }
 
-    // 初始化成功，跳转到对应端首页
+    // 5. 重新获取用户信息，确保最新状态
+    const finalUserData = await getMe()
+    userStore.setUserInfo(finalUserData)
+
+    console.log('初始化完成，用户信息:', finalUserData)
+    console.log('主角色:', userStore.primaryRole)
+
+    // 6. 初始化成功，跳转到对应端首页
+    // 使用 replace 避免路由历史问题
     if (role.value === 'student') {
-      router.push('/student/home')
+      router.replace('/student/home')
     } else if (role.value === 'interviewer') {
-      router.push('/interviewer/join')
+      router.replace('/interviewer/join')
     } else {
-      router.push('/admin/dashboard')
+      router.replace('/admin/dashboard')
     }
   } catch (err: any) {
+    console.error('初始化失败:', err)
     error.value = err.message || '初始化失败'
   } finally {
     loading.value = false

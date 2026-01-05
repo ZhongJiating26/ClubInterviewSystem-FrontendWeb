@@ -144,6 +144,31 @@ src/
 
 更多待开发任务请查看 [TODO.md](./TODO.md)
 
+## Docker 部署
+
+### 快速开始
+
+```bash
+# 构建并启动
+docker-compose up -d
+
+# 访问应用
+# http://localhost:3000
+```
+
+### 文档
+
+- [Windows 部署说明](./文档/Windows部署说明.md) - Windows Docker 部署指南
+- [Docker 快速部署指南](./文档/Docker快速部署指南.md) - 5 分钟快速部署
+- [Docker 完整部署教程](./文档/Docker部署教程.md) - 详细部署与生产环境配置
+
+### 项目文件
+
+- `Dockerfile` - Docker 镜像构建文件
+- `docker-compose.yml` - Docker Compose 编排文件
+- `.dockerignore` - Docker 构建忽略文件
+- `deploy.ps1` - Windows 自动化部署脚本
+
 ## 开发
 
 ### 安装依赖
