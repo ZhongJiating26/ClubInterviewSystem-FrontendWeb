@@ -13,7 +13,7 @@ const request = axios.create({
 const NEED_WRAPPED_PATHS = ['/api/student', '/api/admin', '/api/interviewer']
 
 // 不需要统一响应格式的接口路径（直接返回数据）
-const DIRECT_RETURN_PATHS = ['/api/admin/signup/applications', '/api/admin/dashboard']
+const DIRECT_RETURN_PATHS = ['/api/admin/signup/applications', '/api/admin/dashboard', '/api/admin/clubs']
 
 // 请求拦截器
 request.interceptors.request.use(

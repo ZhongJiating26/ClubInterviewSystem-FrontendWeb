@@ -145,7 +145,7 @@ const data = {
       </template>
     </AppSidebar>
 
-    <SidebarInset>
+    <SidebarInset class="flex-1">
       <!-- 主内容区 -->
       <RouterView :key="route.fullPath" />
     </SidebarInset>
