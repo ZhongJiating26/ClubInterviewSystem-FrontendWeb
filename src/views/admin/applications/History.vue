@@ -70,22 +70,34 @@ const getClubId = () => {
 // 获取招新场次列表
 const fetchSessions = async () => {
   const clubId = getClubId()
-  if (!clubId) return
+  if (!clubId) {
+    console.error('未找到社团ID')
+    error.value = '未找到社团信息，请先完善社团资料'
+    return
+  }
 
   try {
+    console.log('正在获取招新场次...', { clubId })
     const res = await getRecruitmentSessions({ club_id: clubId })
-    sessions.value = res
-    if (res.length > 0) {
+    console.log('招新场次数据:', res)
+    sessions.value = res || []
+    if (res && res.length > 0) {
       selectedSessionId.value = res[0].id
+      console.log('已选择场次:', res[0].id, res[0].name)
+    } else {
+      console.warn('暂无招新场次')
+      error.value = '暂无招新场次，请先创建招新活动'
     }
-  } catch (err) {
-    console.error('获取招新场次失败', err)
+  } catch (err: any) {
+    console.error('获取招新场次失败:', err)
+    error.value = err.message || '获取招新场次失败'
   }
 }
 
 // 获取报名列表
 const fetchApplications = async () => {
   if (!selectedSessionId.value) {
+    console.log('未选择场次，跳过获取报名列表')
     applications.value = []
     total.value = 0
     return
@@ -95,21 +107,27 @@ const fetchApplications = async () => {
     loading.value = true
     error.value = ''
 
-    const res = await getSignupApplications({
+    const params = {
       recruitment_session_id: selectedSessionId.value,
       status: statusFilter.value === 'all' ? undefined : statusFilter.value,
       page: page.value,
       page_size: pageSize.value,
-    })
+    }
+    console.log('正在获取报名列表...', params)
+
+    const res = await getSignupApplications(params)
+    console.log('报名列表响应:', res)
 
     // 防御性处理：确保返回的数据结构正确
     applications.value = res?.items || []
     total.value = res?.total || 0
 
-    console.log('报名列表数据:', res)
+    if (applications.value.length === 0) {
+      console.log('当前场次暂无报名记录')
+    }
   } catch (err: any) {
     console.error('获取报名列表失败:', err)
-    error.value = err.message || '获取报名列表失败'
+    error.value = err.message || '获取报名列表失败，请稍后重试'
     applications.value = []
     total.value = 0
   } finally {
@@ -174,7 +192,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="flex flex-col flex-1 overflow-hidden">
+  <div class="absolute inset-0 flex flex-col">
     <div class="flex-1 min-h-0 overflow-y-auto p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold mb-4">历史报名记录</h1>

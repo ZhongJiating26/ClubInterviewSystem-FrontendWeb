@@ -232,6 +232,12 @@ const routes: RouteRecordRaw[] = [
             meta: { title: '面试场次', roles: ['interviewer'] }
           },
           {
+            path: 'score',
+            name: 'InterviewerInterviewsScore',
+            component: () => import('@/views/interviewer/interviews/Score.vue'),
+            meta: { title: '面试评分', roles: ['interviewer'] }
+          },
+          {
             path: 'records',
             name: 'InterviewerInterviewsRecords',
             component: () => import('@/views/interviewer/interviews/Records.vue'),
@@ -372,13 +378,16 @@ router.beforeEach(async (to, from, next) => {
 
   // 根路径跳转到首页
   if (to.path === '/') {
-    const role = userStore.primaryRole || 'student'
-    const homeMap: Record<string, string> = {
-      admin: '/admin/dashboard',
-      interviewer: '/interviewer/join',
-      student: '/student/home'
+    const userRoles = userStore.userInfo?.roles?.map(r => r.code.toLowerCase()) || []
+
+    // 根据用户实际角色跳转
+    if (userRoles.includes('club_admin') || userRoles.includes('admin')) {
+      next('/admin/dashboard')
+    } else if (userRoles.includes('interviewer')) {
+      next('/interviewer/join')
+    } else {
+      next('/student/home')
     }
-    next(homeMap[role] || '/student/home')
     return
   }
 
@@ -401,7 +410,14 @@ router.beforeEach(async (to, from, next) => {
     })
 
     if (!hasPermission) {
-      // 无权限，跳转到第一个有权限的页面
+      // 无权限，跳转到第一个有权限的页面（只跳转一次，避免循环）
+      // 如果目标就是首页，说明用户没有任何有效角色，跳转到登录页
+      if (to.path === '/student/home' || to.path === '/admin/dashboard' || to.path === '/interviewer/join') {
+        userStore.logout()
+        next('/login')
+        return
+      }
+
       const userRolesLower = userStore.userInfo?.roles?.map(r => r.code.toLowerCase()) || []
       if (userRolesLower.includes('club_admin') || userRolesLower.includes('admin')) {
         next('/admin/dashboard')
