@@ -62,14 +62,12 @@ const saveSettings = () => {
   saving.value = true
   setTimeout(() => {
     saving.value = false
-    console.log('设置已保存:', settings.value)
     // 这里应该调用后端API保存设置
   }, 1000)
 }
 
 // 重置设置
 const resetSettings = () => {
-  console.log('重置设置')
 }
 </script>
 

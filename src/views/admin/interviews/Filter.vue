@@ -121,17 +121,14 @@ const toggleSelectAll = () => {
 
 // 批量分配面试官
 const assignInterviewers = () => {
-  console.log('批量分配面试官')
 }
 
 // 分配面试
 const assignInterview = (student: any) => {
-  console.log('分配面试:', student)
 }
 
 // 取消面试
 const cancelInterview = (student: any) => {
-  console.log('取消面试:', student)
 }
 </script>
 

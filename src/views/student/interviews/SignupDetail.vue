@@ -20,7 +20,6 @@ const fetchDetail = async () => {
     loading.value = true
     error.value = ''
     const data = await getSignupApplicationDetail(signupId)
-    console.log('报名详情数据:', data)
     signup.value = data
   } catch (err: any) {
     error.value = err.message || '获取报名详情失败'

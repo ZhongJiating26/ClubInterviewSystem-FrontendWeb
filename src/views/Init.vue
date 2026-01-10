@@ -218,9 +218,6 @@ const handleInit = async () => {
     const finalUserData = await getMe()
     userStore.setUserInfo(finalUserData)
 
-    console.log('初始化完成，用户信息:', finalUserData)
-    console.log('主角色:', userStore.primaryRole)
-
     // 6. 初始化成功，跳转到对应端首页
     // 使用 replace 避免路由历史问题
     if (role.value === 'student') {
@@ -231,7 +228,6 @@ const handleInit = async () => {
       router.replace('/admin/dashboard')
     }
   } catch (err: any) {
-    console.error('初始化失败:', err)
     error.value = err.message || '初始化失败'
   } finally {
     loading.value = false

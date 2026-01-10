@@ -86,21 +86,12 @@ const fetchDetail = async () => {
     const result = await getClubDetail(clubId.value)
     detail.value = result
 
-    // 调试：打印招新场次和岗位数据
-    console.log('=== 报名页面数据调试 ===')
-    console.log('社团详情:', result)
-    console.log('招新场次:', result.recruitment_sessions)
-    result.recruitment_sessions?.forEach((session: any) => {
-      console.log(`场次 "${session.name}":`, session.positions)
-    })
-
     // 如果没有正在招新的岗位，返回详情页
     if (!hasActiveRecruitment.value) {
       router.replace(`/student/club/${clubId.value}`)
     }
   } catch (err: any) {
     error.value = err.message || '获取社团详情失败'
-    console.error('获取社团详情失败:', err)
   } finally {
     loading.value = false
   }

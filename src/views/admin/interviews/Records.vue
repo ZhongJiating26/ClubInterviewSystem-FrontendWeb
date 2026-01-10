@@ -105,7 +105,6 @@ const filteredRecords = ref(records.value)
 
 // 查看详情
 const viewDetail = (record: any) => {
-  console.log('查看详情:', record)
 }
 </script>
 

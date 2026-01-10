@@ -160,7 +160,6 @@ const submitScore = () => {
 
 // 保存草稿
 const saveDraft = () => {
-  console.log('保存草稿')
   // TODO: 保存草稿逻辑
 }
 

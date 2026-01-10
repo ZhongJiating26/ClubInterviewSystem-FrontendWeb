@@ -49,7 +49,6 @@ const fetchClubs = async () => {
     })
   } catch (err: any) {
     error.value = err.message || '获取社团列表失败'
-    console.error('获取社团列表失败:', err)
   } finally {
     loading.value = false
   }

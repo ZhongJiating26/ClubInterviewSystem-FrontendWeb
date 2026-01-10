@@ -151,7 +151,6 @@ const stats = computed(() => {
 
 // 查看详情
 const viewDetail = (record: any) => {
-  console.log('查看详情:', record)
   // TODO: 跳转到详情页或打开弹窗
 }
 </script>

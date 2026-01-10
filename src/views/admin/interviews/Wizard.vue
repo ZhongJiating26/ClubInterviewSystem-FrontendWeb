@@ -100,7 +100,6 @@ const fetchRecruitmentSessions = async () => {
     const res = await getRecruitmentSessions({ club_id: clubId })
     recruitmentSessions.value = res.filter(s => s.status === 'PUBLISHED')
   } catch (err) {
-    console.error('获取招新场次失败', err)
   }
 }
 
@@ -114,7 +113,6 @@ const fetchInterviewers = async () => {
     const res = await getAssignableInterviewers(clubId)
     interviewers.value = res
   } catch (err: any) {
-    console.error('获取面试官列表失败', err)
     error.value = err.message || '获取面试官列表失败'
   } finally {
     interviewersLoading.value = false

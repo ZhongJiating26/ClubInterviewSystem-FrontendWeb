@@ -42,7 +42,6 @@ const handleLogin = async () => {
       router.push('/role-select')
     }
   } catch (err: any) {
-    console.error('登录错误:', err)
     // 提示更友好的错误信息
     error.value = '手机号或密码错误'
   } finally {

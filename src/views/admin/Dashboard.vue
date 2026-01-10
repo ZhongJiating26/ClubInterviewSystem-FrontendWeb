@@ -62,7 +62,6 @@ const fetchProfileCheck = async () => {
     profileCheck.value = res
     checked.value = true
   } catch (error) {
-    console.error('获取社团资料检查状态失败:', error)
   }
 }
 

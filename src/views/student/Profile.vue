@@ -19,7 +19,6 @@ const fetchProfile = async () => {
     loading.value = true
     profile.value = await getProfile()
   } catch (err: any) {
-    console.error('获取学生信息失败:', err)
   } finally {
     loading.value = false
   }

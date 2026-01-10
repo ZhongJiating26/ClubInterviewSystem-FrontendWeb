@@ -75,7 +75,6 @@ const fetchDepartments = async () => {
     const res = await getDepartments(clubId)
     departments.value = res
   } catch (err) {
-    console.error('获取部门列表失败', err)
   }
 }
 

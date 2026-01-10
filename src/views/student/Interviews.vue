@@ -40,9 +40,7 @@ const fetchInterviews = async () => {
     interviewsLoading.value = true
     interviewsError.value = ''
     interviews.value = await getMyInterviewRecords()
-    console.log('面试记录数据:', interviews.value)
   } catch (err: any) {
-    console.error('面试记录错误:', err)
     interviewsError.value = err.message || '获取面试记录失败'
   } finally {
     interviewsLoading.value = false

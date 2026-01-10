@@ -215,7 +215,6 @@ const openDetail = (candidate: any) => {
 
 // 开始面试
 const startInterview = (candidate: any) => {
-  console.log('开始面试:', candidate)
   router.push({
     name: 'InterviewerInterviewsScore',
     query: { candidateId: candidate.id }

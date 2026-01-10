@@ -43,7 +43,6 @@ const search = async () => {
     selectedIndex.value = -1
     showDropdown.value = true
   } catch (err) {
-    console.error('搜索学校失败:', err)
     schools.value = []
   } finally {
     loading.value = false

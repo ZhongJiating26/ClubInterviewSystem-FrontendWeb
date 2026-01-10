@@ -82,7 +82,6 @@ const fetchSessions = async () => {
       selectedSessionId.value = res[0].id
     }
   } catch (err) {
-    console.error('获取招新场次失败', err)
   }
 }
 

@@ -20,11 +20,9 @@ const fetchDetail = async () => {
     loading.value = true
     error.value = ''
     const result = await getClubDetail(clubId.value)
-    console.log('社团详情返回数据:', result)
     detail.value = result
   } catch (err: any) {
     error.value = err.message || '获取社团详情失败'
-    console.error('获取社团详情失败:', err)
   } finally {
     loading.value = false
   }

@@ -172,9 +172,6 @@ const handleConfirm = async () => {
   success.value = ''
   loading.value = true
 
-  console.log('formData:', formData.value)
-  console.log('description:', formData.value.description)
-
   try {
     // 调用更新接口，传入文件和基本信息
     const res = await updateClub(originalData.value.id, {

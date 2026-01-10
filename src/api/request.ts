@@ -46,7 +46,6 @@ request.interceptors.response.use(
     const needsWrapped = NEED_WRAPPED_PATHS.some(path => url.startsWith(path))
 
     if (needsWrapped) {
-      console.log('响应数据:', { url, data })
       // 如果返回的是数组，直接返回（兼容某些接口直接返回数组）
       if (Array.isArray(data)) {
         return data
@@ -55,7 +54,6 @@ request.interceptors.response.use(
       if (data.code === 200 || data.success) {
         return data.data || data
       }
-      console.error('API 响应格式错误，完整响应:', data)
       return Promise.reject(new Error(data.message || '请求失败'))
     }
 

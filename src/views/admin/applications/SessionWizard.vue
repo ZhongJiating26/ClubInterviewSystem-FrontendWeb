@@ -102,9 +102,7 @@ const saveDraft = async () => {
       updatedAt: new Date().toISOString(),
     }
     localStorage.setItem(draftKey.value, JSON.stringify(draft))
-    console.log('草稿已保存')
   } catch (err) {
-    console.error('保存草稿失败', err)
   } finally {
     draftSaving.value = false
   }
@@ -119,11 +117,9 @@ const loadDraft = () => {
       formData.value = draft.formData || formData.value
       sessionPositions.value = draft.sessionPositions || []
       currentStep.value = draft.step || 0
-      console.log('草稿已加载')
       return true
     }
   } catch (err) {
-    console.error('加载草稿失败', err)
   }
   return false
 }
@@ -163,7 +159,6 @@ const fetchPositions = async () => {
     const res = await getPositions(clubId)
     availablePositions.value = res
   } catch (err) {
-    console.error('获取岗位列表失败', err)
   }
 }
 
@@ -175,7 +170,6 @@ const fetchSessionPositions = async () => {
     const res = await getSessionPositions(sessionId.value)
     sessionPositions.value = res
   } catch (err) {
-    console.error('获取招新岗位失败', err)
   }
 }
 
@@ -239,17 +233,12 @@ const handleAddPosition = async (positionId: number, quota?: number) => {
   // 编辑模式：调用 API
   try {
     error.value = ''
-    console.log('添加岗位参数:', {
-      position_id: Number(positionId),
-      recruit_quota: Number(finalQuota),
-    })
     await addSessionPosition(sessionId.value, {
       position_id: Number(positionId),
       recruit_quota: Number(finalQuota),
     })
     await fetchSessionPositions()
   } catch (err: any) {
-    console.error('添加岗位失败:', err)
     error.value = err.response?.data?.detail || err.message || '添加岗位失败'
   }
 }
