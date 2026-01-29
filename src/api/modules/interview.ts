@@ -1,4 +1,5 @@
 import { get, post, put, del } from '../request'
+import type { SignupApplication } from './application'
 
 // ==================== 类型定义 ====================
 

@@ -2,7 +2,7 @@ import axios, { type AxiosRequestConfig, type AxiosResponse, type AxiosError } f
 import { useUserStore } from '@/stores/user'
 
 const request = axios.create({
-  baseURL: '',
+  baseURL: (import.meta.env.VITE_API_BASE_URL as string) || '',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'

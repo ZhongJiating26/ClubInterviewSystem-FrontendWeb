@@ -21,7 +21,7 @@ import {
 } from 'lucide-vue-next'
 import { useUserStore } from '@/stores/user'
 import AppSidebar from '@/components/AppSidebar.vue'
-import NavUserCustom from '@/components/NavUserCustom.vue'
+import NavUser from '@/components/NavUser.vue'
 import NavGroup from '@/components/NavGroup.vue'
 import {
   SidebarInset,
@@ -141,7 +141,7 @@ const data = {
         <NavGroup title="系统" :items="data.navSystem" class="mt-auto" />
       </template>
       <template #footer>
-        <NavUserCustom :user="data.user" />
+        <NavUser :user="data.user" />
       </template>
     </AppSidebar>
 
